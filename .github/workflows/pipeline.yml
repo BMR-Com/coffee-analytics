@@ -1,0 +1,105 @@
+name: Coffee Market Report Pipeline
+
+on:
+  schedule:
+    - cron: '0 8 16 * *'
+
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Run mode'
+        required: true
+        type: choice
+        options:
+          - 'single'
+          - 'backfill'
+          - 'recent'
+          - 'skip-existing'
+        default: 'single'
+      period:
+        description: 'Period (YYYY-MM) — only used in single mode'
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install pdfplumber requests pandas python-dateutil
+
+      - name: Determine run command
+        id: cmd
+        run: |
+          MODE="${{ github.event.inputs.mode || 'single' }}"
+          PERIOD="${{ github.event.inputs.period }}"
+
+          if [ "$MODE" = "single" ]; then
+            if [ -z "$PERIOD" ]; then
+              PERIOD=$(date -d "1 month ago" +%Y-%m)
+            fi
+            echo "cmd=python scripts/parse_reports.py --period $PERIOD" >> $GITHUB_OUTPUT
+            echo "label=Single: $PERIOD" >> $GITHUB_OUTPUT
+
+          elif [ "$MODE" = "backfill" ]; then
+            echo "cmd=python scripts/parse_reports.py --from 2014-10 --delay 2" >> $GITHUB_OUTPUT
+            echo "label=Full backfill from 2014-10" >> $GITHUB_OUTPUT
+
+          elif [ "$MODE" = "recent" ]; then
+            FROM=$(date -d "6 months ago" +%Y-%m)
+            echo "cmd=python scripts/parse_reports.py --from $FROM --delay 1" >> $GITHUB_OUTPUT
+            echo "label=Recent 6 months from $FROM" >> $GITHUB_OUTPUT
+
+          elif [ "$MODE" = "skip-existing" ]; then
+            echo "cmd=python scripts/parse_reports.py --from 2014-10 --skip-existing --delay 2" >> $GITHUB_OUTPUT
+            echo "label=Full run skipping existing" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run pipeline
+        run: |
+          echo "🚀 ${{ steps.cmd.outputs.label }}"
+          ${{ steps.cmd.outputs.cmd }}
+
+      - name: Check for changes
+        id: changes
+        run: |
+          git diff --quiet && echo "changed=false" >> $GITHUB_OUTPUT || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Commit and push
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name "coffee-pipeline-bot"
+          git config user.email "bot@coffee-analytics"
+          git add data/ pdfs/
+          git commit -m "📊 Pipeline: ${{ steps.cmd.outputs.label }}"
+          git push
+
+      - name: Summary
+        run: |
+          echo "### ☕ Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Mode:** ${{ steps.cmd.outputs.label }}" >> $GITHUB_STEP_SUMMARY
+          if [ -f "data/index.json" ]; then
+            TOTAL=$(python -c "import json; d=json.load(open('data/index.json')); print(d.get('total_reports',0))")
+            echo "- **Total reports:** $TOTAL" >> $GITHUB_STEP_SUMMARY
+          fi
+          for csv in data/csv/*.csv; do
+            if [ -f "$csv" ]; then
+              ROWS=$(tail -n +2 "$csv" | wc -l)
+              echo "- **$(basename $csv):** $ROWS rows" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
