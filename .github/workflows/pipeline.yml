@@ -1,26 +1,27 @@
 name: Coffee Market Report Pipeline
 
 on:
+  # Runs on 16th of every month at 08:00 UTC
+  # ICO publishes previous month's report around 10th-16th
   schedule:
     - cron: '0 8 16 * *'
 
+  # Manual trigger
   workflow_dispatch:
     inputs:
-      mode:
-        description: 'Run mode'
-        required: true
-        type: choice
-        options:
-          - 'single'
-          - 'backfill'
-          - 'recent'
-          - 'skip-existing'
-        default: 'single'
       period:
-        description: 'Period (YYYY-MM) — only used in single mode'
+        description: 'Single period YYYY-MM (leave blank for last month)'
         required: false
         type: string
-        default: ''
+      from_period:
+        description: 'Backfill from YYYY-MM (e.g. 2015-10 for full history)'
+        required: false
+        type: string
+      skip_existing:
+        description: 'Skip already-processed periods'
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   run-pipeline:
@@ -41,61 +42,54 @@ jobs:
           cache: 'pip'
 
       - name: Install dependencies
-        run: pip install pdfplumber requests pandas python-dateutil
+        run: pip install pdfplumber requests pandas python-dateutil urllib3
 
-      - name: Determine run command
+      - name: Build run command
         id: cmd
         run: |
-          MODE="${{ github.event.inputs.mode || 'single' }}"
-          PERIOD="${{ github.event.inputs.period }}"
+          if [ -n "${{ github.event.inputs.period }}" ]; then
+            echo "cmd=python scripts/parse_reports.py --period ${{ github.event.inputs.period }}" >> $GITHUB_OUTPUT
+            echo "label=Single: ${{ github.event.inputs.period }}" >> $GITHUB_OUTPUT
 
-          if [ "$MODE" = "single" ]; then
-            if [ -z "$PERIOD" ]; then
-              PERIOD=$(date -d "1 month ago" +%Y-%m)
-            fi
+          elif [ -n "${{ github.event.inputs.from_period }}" ]; then
+            SKIP="${{ github.event.inputs.skip_existing == 'true' && '--skip-existing' || '' }}"
+            echo "cmd=python scripts/parse_reports.py --from ${{ github.event.inputs.from_period }} $SKIP --delay 2" >> $GITHUB_OUTPUT
+            echo "label=Backfill from ${{ github.event.inputs.from_period }}" >> $GITHUB_OUTPUT
+
+          else
+            # Default: process last month only
+            PERIOD=$(date -d "1 month ago" +%Y-%m)
             echo "cmd=python scripts/parse_reports.py --period $PERIOD" >> $GITHUB_OUTPUT
-            echo "label=Single: $PERIOD" >> $GITHUB_OUTPUT
-
-          elif [ "$MODE" = "backfill" ]; then
-            echo "cmd=python scripts/parse_reports.py --from 2014-10 --delay 2" >> $GITHUB_OUTPUT
-            echo "label=Full backfill from 2014-10" >> $GITHUB_OUTPUT
-
-          elif [ "$MODE" = "recent" ]; then
-            FROM=$(date -d "6 months ago" +%Y-%m)
-            echo "cmd=python scripts/parse_reports.py --from $FROM --delay 1" >> $GITHUB_OUTPUT
-            echo "label=Recent 6 months from $FROM" >> $GITHUB_OUTPUT
-
-          elif [ "$MODE" = "skip-existing" ]; then
-            echo "cmd=python scripts/parse_reports.py --from 2014-10 --skip-existing --delay 2" >> $GITHUB_OUTPUT
-            echo "label=Full run skipping existing" >> $GITHUB_OUTPUT
+            echo "label=Monthly update: $PERIOD" >> $GITHUB_OUTPUT
           fi
 
       - name: Run pipeline
         run: |
-          echo "🚀 ${{ steps.cmd.outputs.label }}"
+          echo "Running: ${{ steps.cmd.outputs.label }}"
           ${{ steps.cmd.outputs.cmd }}
 
       - name: Check for changes
         id: changes
         run: |
-          git diff --quiet && echo "changed=false" >> $GITHUB_OUTPUT || echo "changed=true" >> $GITHUB_OUTPUT
+          git diff --quiet && echo "changed=false" >> $GITHUB_OUTPUT \
+                           || echo "changed=true"  >> $GITHUB_OUTPUT
 
       - name: Commit and push
         if: steps.changes.outputs.changed == 'true'
         run: |
-          git config user.name "coffee-pipeline-bot"
+          git config user.name  "coffee-pipeline-bot"
           git config user.email "bot@coffee-analytics"
           git add data/ pdfs/
-          git commit -m "📊 Pipeline: ${{ steps.cmd.outputs.label }}"
+          git commit -m "📊 ${{ steps.cmd.outputs.label }}"
           git push
 
       - name: Summary
         run: |
           echo "### ☕ Pipeline Summary" >> $GITHUB_STEP_SUMMARY
-          echo "- **Mode:** ${{ steps.cmd.outputs.label }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Run:** ${{ steps.cmd.outputs.label }}" >> $GITHUB_STEP_SUMMARY
           if [ -f "data/index.json" ]; then
             TOTAL=$(python -c "import json; d=json.load(open('data/index.json')); print(d.get('total_reports',0))")
-            echo "- **Total reports:** $TOTAL" >> $GITHUB_STEP_SUMMARY
+            echo "- **Total reports processed:** $TOTAL" >> $GITHUB_STEP_SUMMARY
           fi
           for csv in data/csv/*.csv; do
             if [ -f "$csv" ]; then
