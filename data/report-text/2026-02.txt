@@ -1,0 +1,412 @@
+Improved supply outlook weighing down on
+the I-CIP
+The ICO Composite Indicator Price (I-CIP) averaged 267.57 US cents/lb in February 2026, a 9.9% decrease
+from January 2026. The key drivers behind the decline were improved supply outlooks, including strong
+production forecasts for Brazil, with expectations of a global supply surplus for coffee year 2025/26.
+• The Colombian Milds’ and Other Milds’ prices retracted 11.0% and 11.7% in February 2026 compared to
+January 2026, averaging 330.89 and 321.35 US cents/lb, respectively. The Brazilian Naturals’ prices shrank
+10.2% to 308.62 US cents/lb in February 2026. In the same month, the Robustas declined by 6.6% to
+179.73 US cents/lb.
+• The arbitrage between the London and New York futures markets shrank by 20.7% to 122.70 US cents/lb in
+February 2026.
+Global exports of green beans continued to increase in January 2026, reaching 10.85 million bags, up 12.7%
+from 9.63 million bags in January 2025, as follows:
+• Exports of the Robustas were up 49.1% to 5.25 million bags in January 2026 from 3.52 million bags in
+January 2025.
+• Exports of the Colombian Milds decreased by 19.5% in January 2026 to 0.99 million bags from 1.23 million
+bags in January 2025.
+• Shipments of the Other Milds increased by 33.8% in January 2026 to 1.94 million bags from
+1.45 million bags in the same period in 2025.
+• Exports of the Brazilian Naturals decreased by 22.2% in January 2026 to 2.66 million bags from 3.42 million
+bags in January 2025
+As a result, the Arabicas’ share of the total green bean exports for the first four months of coffee year
+2025/26 fell to 61.1% from 66.4% over the same period a year ago.
+Global exports of all forms of coffee increased by 13.7% to 12.62 million bags in January 2026 as compared
+with 11.1 million bags in January 2025. Export volumes expanded in three of the four regions, with
+South America being the only region that experienced a downturn:
+• Exports of all forms of coffee from Asia & Oceania were up 54.4% to 5.87 million bags from 3.8 million bags
+in January 2025.
+• Exports of all forms of coffee from Africa increased by 15.3% to 1.27 million bags from 1.1 million bags in
+January 2025.
+• South America’s exports of all forms of coffee decreased by 21.3% to 4.0 million bags from 5.08 million bags
+in January 2025.
+• Exports of all forms of coffee from Mexico & Central America increased by 33.5% to 1.48 million bags as
+compared with 1.11 million bags in January 2025.
+Coffee Market Report – February 2026 1
+Green coffee price
+The ICO Composite Indicator Price (I-CIP) averaged 267.57 US cents/lb in February 2026, a 9.9% decrease
+from January 2026. Coffee prices in February showed a downward trend.
+400
+380
+360
+340
+320
+300
+280
+260
+240
+220
+200
+180
+160
+140
+The Colombian Milds’ and Other Milds’ prices retracted 11.0% and 11.7% in February 2026 compared to
+January 2026, averaging 330.89 and 321.35 US cents/lb, respectively. The Brazilian Naturals’ prices shrank
+10.2% to 308.62 US cents/lb in February 2026. In the same month, the Robustas declined by 6.6% to
+179.73 US cents/lb. The prices at the London Intercontinental Commodity Exchange (ICE) market decreased
+by 7.9% to 166.06 US cents/lb, while the New York ICE market decreased by 13.8% to 288.76 US cents/lb in
+February 2026.
+February 2026 marked a significant turning point for the global coffee industry. The I-CIP fell to its lowest
+since 1 August 2025 (249.12 US cents/lb). The primary driver was a reassessment of the global supply
+balance, triggered by the National Supply Company of Brazil’s (Companhia Nacional de Abastecimento -
+CONAB) forecast of a record Brazilian crop, alongside confirmed favourable rainfall in Minas Gerais, a key
+coffee-growing region in Brazil, and good rainfall in Vietnam. Episodic support from seasonal factors,
+currency dynamics, and commercial roaster buying proved insufficient to offset the dominant bearish trend.
+While the market structure remains in backwardation, signalling continued tightness in short-term physical
+supply, the forward-looking fundamentals point to increasing downside risks: Rabobank projects a 2026/27
+surplus of around 8.64 million bags, following three consecutive years of supply deficits. Similarly, the World
+Bank anticipates a 13% decline in Arabica prices in calendar year 2026.
+February’s price movements can be categorized into three phases, as detailed below.
+Phase 1 — Accelerated Decline (1–6 Feb):
+• In the first days of the month, prices continued the downward movement observed at the end of
+January, following reports of adequate rainfall in key coffee-growing regions in Brazil and strong
+export flows from Vietnam. Furthermore, the release of CONAB's forecasts on 5 February (66.2 million
+bags, +17.1% year-on-year) confirmed expectations of a strong Brazilian crop in 2026.
+• As prices decisively broke through the 330 US cents/lb barrier, a self-reinforcing liquidation dynamic
+emerged. In particular, the classic 'snowball' mechanism typical of speculative markets took hold, as
+liquidation of non-commercial long positions and a build-up of total commercial and non-
+commercial short positions accelerated the decline in prices. This can be seen in Figure A, where
+non-commercial long positions declined by 15.8% between 27 January 2026 and 3 February 2026.
+• In addition, open interest fell by 14.6% to 156,645 between 3 and 17 February 2026.
+Coffee Market Report – February 2026 2
+bl/stnec
+SU
+Figure 1: I-CIP
+--2ndDegree Polynomial
+Figure A: Commodity Future’s Trading Commission’s Open Interest on the Arabica market (Source: CFTC)
+70,000
+60,000
+50,000
+40,000
+30,000
+20,000
+10,000
+0
+Non-Commercial Long Non-Commercial Short
+Phase 2 — Consolidation and mid-month plateau (6-16 February):
+• Temporary price stabilization occurred during this period, supported by the Tết (Vietnamese Lunar
+New Year) holiday, which reduced domestic supply in Vietnam. The country observed its most
+important week-long celebration from 14 to 21 February to mark the arrival of spring. During this
+time, major cities like Hanoi and Ho Chi Minh City became quieter as many residents returned to
+their hometowns, with many businesses also closed for the first three to five days.
+• The appreciation of the Brazilian Real (BRL) against the USD during the month reduced Brazilian
+farmers’ incentives to forward-sell (USD to BRL 5.2594 on 2 February compared with 5.1242 on
+25 February, a 2.6% appreciation). A stronger Real means producers receive fewer BRL per USD-
+denominated futures contract, effectively raising the threshold at which forward selling
+becomes attractive.
+• EUR/USD appreciation exerted a complementary supportive effect on Robusta prices, as European
+buyers —accounting for approximately 60% of Vietnamese coffee exports — faced lower costs in EUR
+for USD-priced contracts, increasing their purchasing power and sustaining demand at the margin.
+Phase 3 — Second downward leg and stabilisation (16–27 February)
+• Arabica–Robusta substitution is driving the reformulation of roaster blends, gradually softening
+Arabica demand while supporting that of the Robustas. In the last 12 months, the rate of decline in
+Robusta stocks has outpaced that of the Arabicas, with the London futures market shrinking 33%
+(monthly averages), as compared with a 25% decline on the New York market. Indeed, the persistent
+elevation of Arabica prices to nearly double the level of the Robustas has increasingly influenced
+blending decisions. Commercial roasters with the technical capability to substitute Arabica for
+Robusta coffee in their blends have been doing so, generating incremental demand for Robusta while
+easing the demand for Arabica. This substitution effect contributed to supporting and stabilizing
+prices in the latter part of the month.
+• Consumer price pressures: US retail coffee prices increased 18.3% y/y in January 2026, bringing the
+five-year cumulative increase to 47%. Rising consumer debt stress signals the softening of nascent
+demand, representing a longer-term bearish overlay.
+Furthermore, the forward curve structure throughout February remained in significant backwardation, with
+near-month contracts trading at a material premium to deferred months. From a market structure
+perspective, this creates a rational incentive for holders of physical inventory to deliver into the exchange,
+as the cost-of-carry return from holding stock is negative. While deliveries into the exchange have therefore
+Coffee Market Report – February 2026 3
+tseretnI
+2026 Report Week 01 2026 Report Week 02
+2026 Report Week 03 2026 Report Week 04
+2026 Report Week 05 2026 Report Week 06
+taken place, exchange stocks remain below historical averages. This suggests that near-term demand for
+coffee remains firm.
+475
+450
+425
+400
+375
+350
+325
+300
+275
+250
+225
+200
+175
+150
+125
+100
+75
+The Colombian Milds–Other Milds differential increased from 7.65 to 9.54 US cents/lb between
+January and February 2026. The Colombian Milds–Brazilian Naturals differential shrank by 20.0% to
+22.27 US cents/lb, whilst the Colombian Milds–Robustas differential moved in the same direction, a 15.6%
+decrease from January to February 2026 to 151.16 US cents/lb. Meanwhile, the Other Milds–Brazilian
+Naturals and Other Milds–Robustas differentials decreased by 36.9% and 17.4% to 12.73 and
+141.62 US cents/lb, respectively. The Brazilian Naturals–Robustas differential contracted by 14.8% to
+128.89 US cents/lb in February 2026.
+The arbitrage between the London and New York futures markets shrank by 20.7% to 122.70 US cents/lb
+in February 2026.
+The intra-day volatility of the I-CIP increased by 1.8 percentage points compared to January 2026, averaging
+9.9% in February 2026. The volatility of the Colombian Milds and Other Milds followed a similar trend,
+increasing to 9.0% and 10.1%, respectively. Meanwhile, the Brazilian Naturals’ volatility increased by
+1.5 percentage points, month-on-month, to 11.9% in February 2026. The Robustas’ volatility increased to
+10.2%. At the New York and London futures markets, the volatilities were at 10.4% and 10.7%, respectively,
+up by 1.1 and 3.0 percentage points in February 2026, compared to January 2026.
+Coffee Market Report – February 2026 4
+bl/stnec
+SU
+Figure 2: ICO Group Indicator Daily Prices
+Colombian Milds Other Milds Brazilian Naturals Robustas
+The London certified stocks of Robusta coffee increased by 0.7% from January to February 2026, closing
+the month at 0.76 million bags. US certified stocks of Arabica coffee followed the same trend, climbing to
+0.52 million bags, a 12.0% increase versus January 2026.
+Exports by coffee group – green beans
+In January 2026, global green bean exports totalled 10.85 million bags, up 12.7% as compared with
+9.63 million bags in January 2025. For the third straight month, the performance across the four groups
+was mixed with same dynamics: exports of the Other Milds and Robustas increased, while shipments of the
+Brazilian Naturals and Colombian Milds declined.
+Green bean exports of the Robustas were up 49.1% to 5.25 million bags in January 2026 from
+3.52 million bags in January 2025, primarily driven by Vietnam, whose shipments increased 73.3% to
+3.69 million bags. India, Indonesia and Uganda also all contributed positively, with their combined exports
+up 20.4% to 1.2 million bags from 1.0 million bags in January 2025. These gains were partly offset by Brazil,
+where Robusta exports fell 25.0% to 0.18 million bags. This pattern of decreasing exports from Brazil and
+Coffee Market Report – February 2026 5
+increasing shipments from India, Indonesia, Uganda and Vietnam has persisted during the first four months
+of coffee year 2025/26.
+In the cases of Vietnam and Brazil, the sharp year-on-year changes largely reflect a normalization rather
+than a structural shift: Vietnam rebounded from a supply-driven downturn, while Brazil retreated from the
+unusually elevated export level seen from the final three months of coffee year 2022/23 through to the
+first three months of coffee year 2024/25, when it filled a global Robusta supply vacuum caused by curtailed
+shipments from Indonesia and Vietnam. Brazil exported 9.37 million bags in 2023/24, well above its five-
+year average of 3.52 million bags. By contrast, Uganda’s growth appears structural, with exports on a
+sustained upward trajectory since mid-2023/24. Shipments reached a record 7.32 million bags in 2024/25,
+supported by rising production, high international prices and increased stock drawdowns. Uganda has set
+an official production target of 20 million bags by 2030.
+Exports of the Colombian Milds decreased by 19.5% in January 2026 to 0.99 million bags from
+1.23 million bags in January 2025. This marked the third consecutive month of negative growth following
+25 months of consecutive expansion. Colombia’s exports fell by 22.1% to 0.85 million bags as compared
+with 1.09 million bags in January 2025, driven by falling local supply (see Exports by region – all forms of
+coffee for additional insight). This causal relationship between production and exports is not surprising
+given that in the past 15 years, between coffee years 2010/11 and 2024/25, an average 86.2% of production
+was exported as green beans.
+Shipments of the Other Milds increased by 33.8% in January 2026 to 1.94 million bags from
+1.45 million bags in the same period in 2025. Honduras and Nicaragua were the main drivers of the group’s
+double-digit growth, with exports rising 53.0% and 108.0%, respectively, in January 2026. The main reason
+for the region’s double-digit growth rate was the mismatch in the harvest start times between the current
+and previous coffee years. The current harvest began two months later than usual, thereby shifting
+shipments into the current reporting period (see Exports by region – all forms of coffee for additional
+insight).
+Green bean exports of the Brazilian Naturals decreased by 22.2% in January 2026 to 2.66 million bags
+from 3.42 million bags in January 2025. The Brazilian Naturals recorded their 11th consecutive month of
+negative growth in January 2026, driven primarily by Brazil, whose exports fell 24.7% to 2.35 million bags
+from 3.11 million bags a year earlier. Between coffee years 2020/21 and 2024/25, Brazil accounted for an
+average 85.3% of the group’s exports, making its performance the key determinant of overall trends. The
+recent downturn reflects the cyclical nature of Brazil’s Arabica production, a base effect following the
+record-high “on-year” exports observed in 2023/24 (up 21.7%), and, likely, the impact of increased US tariffs
+in 2025.
+The total Arabica exports decreased to 5.59 million bags in January 2026, down 8.3% from 6.1 million bags
+in January 2025. As a result, the Arabicas’ share of the total green bean exports for the first four months of
+coffee year 2025/26 fell to 61.1% from 66.4% over the same period a year ago.
+Coffee Market Report – February 2026 6
+Exports by region – all forms of coffee
+Global exports of all forms of coffee increased by 13.7% to 12.62 million bags in January 2026 as compared
+with 11.1 million bags in January 2025. Export volumes expanded in three of the four regions, with South
+America being the only region that experienced a downturn.
+Exports of all forms of coffee from Asia & Oceania were up 54.4% to 5.87 million bags in January 2026
+from 3.8 million bags in January 2025. The region’s double-digit growth was led by Vietnam, whose exports
+rose 67.0% to 4.33 million bags, up from 2.59 million bags a year earlier. The January 2026 exports set a
+new record for the month — 7.9% higher than the previous January record of 4.01 million bags in 2024.
+A projected bumper output in coffee year 2025/26, with market expectations ranging between 6-12%
+growth as compared with coffee year 2024/25, is the primary driver of the record exports in Vietnam. India
+Coffee Market Report – February 2026 7
+and Indonesia also supported the region’s double-digit growth, with combined exports up 21.6% to 1.35
+million bags in January 2026 from 1.11 million bags a year earlier.
+Exports of all forms of coffee from Africa increased by 15.3% in January 2026 to 1.27 million bags from
+1.1 million bags in January 2025. The January expansion was largely driven by Uganda, whose exports rose
+25.1% to an estimated 0.69 million bags from 0.55 million bags a year earlier. Uganda’s exports have been
+on a sharply rising trajectory since mid-2023/24, breaking through the 7.0–8.0 million bag range for the
+first time in coffee year 2024/25, when they reached 8.26 million bags. This growth has been mainly driven
+by rising production, which is also likely behind the latest increase in exports. In coffee year 2025/26,
+Uganda’s production is expected to expand further, with some estimates suggesting growth of more
+than 10%.
+South America’s exports of all forms of coffee decreased by 21.3% in January 2026, to 4.0 million bags from
+5.08 million bags in January 2025. South America recorded its 15th consecutive month of negative growth
+in January 2026, following a 16-month streak of positive expansion. The downturn was largely driven by
+Brazil, whose total exports were down by 25.5% to 2.81 million bags from 3.77 million bags. Brazil has
+been affected by a base effect and the normalization of supply from Indonesia and Vietnam, particularly
+after the international Robusta market vacuum of coffee year 2023/24, which led Brazil’s green Robusta
+shipments to fill the gap with an unusually high level of 9.37 million bags, well above the five-year average
+(3.52 million bags in coffee years 2018/19–2022/23). Exports of all forms of coffee from Brazil were up
+35.1% at 50.1 million bags in coffee year 2024/25 as compared with the five-year average of 40.92 million
+bags (coffee years 2018/19–2022/23). With Indonesia and Vietnam’s supply having returned to normal
+levels in coffee years 2024/25 and 2025/26, a downturn in Brazil’s exports, and therefore those of South
+America, was inevitable.
+Colombia’s exports fell 19.4% in January 2026 to 0.94 million bags from 1.16 million bags in January 2025.
+This is the second consecutive month of downturn in Colombia, which is driven by falling production.
+The National Federation of Coffee Growers of Colombia reported that the January 2026 production was
+down to 0.89 million bags from 1.36 million bags in January 2025, a fall of 34.1%.
+Exports of all forms of coffee from Mexico & Central America increased by 33.5% in January 2026, to
+1.48 million bags as compared with 1.11 million bags in January 2025. This marked the second consecutive
+month of positive growth for Mexico & Central America, after the region closed coffee year 2024/25 and
+opened coffee year 2025/26 with two consecutive months of contraction. The region’s latest growth was
+mainly driven by Honduras and Nicaragua, whose exports grew by 53.0% and 101.5% to 0.56 million bags
+and 0.33 million bags, as compared with 0.37 million bags and 0.17 million bags in
+January 2025, respectively.
+Most of the Mexico & Central America region was subject to a widespread drought from January to mid-
+June 2024, accompanied by intense heat waves in May 2024, which were reported to have negatively
+impacted flowering. This was followed by excessive rainfall from July 2024, including in November 2024
+due to Tropical Storm Sara, which delayed the maturation process and pushed the start of the 2024/25
+coffee year harvest to January 2026, two months later than the typical October start date. In contrast, the
+2025/26 coffee year harvest reportedly began on schedule, in October. Given the usual two- to three-month
+lag between the start of the harvest and the first exports, the region, and in particular Honduras and
+Nicaragua, recorded double-digit growth rates due to a timing mismatch in the release of new supplies
+between the two coffee years.
+Exports of coffee by form
+Green beans were the largest form of coffee exported, accounting for 85.23% of total exports in the first
+four months of coffee year 2025/26, while soluble and roasted coffee represented 14.24% and 0.53%,
+respectively.
+Coffee Market Report – February 2026 8
+Figure 9: Total Exports by Form (October-January)
+2022/23 89.62% 0.63% 9.74%
+2023/24 87.45% 0.63% 11.93%
+2024/25 85.84% 0.50% 13.66%
+2025/26 85.23% 0.53% 14.24%
+0 5 10 15 20 25 30 35 40 45 50
+Million 60-kg Bags
+Green Roasted Soluble
+Total exports of soluble coffee increased by 19.6% in January 2026 to 1.7 million bags from
+1.42 million bags in January 2025. Vietnam, Indonesia and Brazil were the biggest exporters of soluble
+coffee in January 2026, having shipped 0.57 million, 0.32 million and 0.27 million bags, respectively.
+Exports of roasted beans were up 56.0% in January 2026, reaching 0.07 million bags, compared to
+0.04 million bags in January 2025.
+Coffee Market Report – February 2026 9
+Table 1: ICO daily indicator prices and futures prices (US cents/lb)
+Colombian Brazilian
+ICO Composite Other Milds Robustas New York* London*
+Milds Naturals
+Monthly averages
+Mar-25 347.85 404.97 404.02 392.48 257.61 382.75 247.63
+Apr-25 335.76 394.14 392.84 378.27 246.39 370.37 235.69
+May-25 334.41 395.59 397.84 380.02 237.76 368.21 224.63
+Jun-25 295.06 360.08 363.16 338.53 196.21 329.56 183.21
+Jul-25 259.31 322.37 325.50 297.04 167.19 289.17 153.43
+Aug-25 297.05 366.72 366.32 336.88 199.13 328.57 181.43
+Sep-25 324.62 403.77 400.21 374.91 210.85 366.31 197.56
+Oct-25 326.38 403.25 403.79 373.47 215.06 366.00 202.16
+Nov-25 330.44 408.75 410.31 380.17 214.91 373.57 202.33
+Dec-25 304.68 382.32 381.14 355.38 190.53 347.71 178.87
+Jan-26 296.89 371.59 363.94 343.77 192.52 334.99 180.23
+Feb-26 267.57 330.89 321.35 308.62 179.73 288.76 166.06
+% change between Jan-26 and Feb-26
+-9.9% -11.0% -11.7% -10.2% -6.6% -13.8% -7.9%
+Volatility (%)
+Jan-26 8.1% 8.5% 8.7% 10.4% 7.8% 9.3% 7.8%
+Feb-26 9.9% 9.0% 10.1% 11.9% 10.2% 10.4% 10.7%
+Variation between Jan-26 and Feb-26
+1.8 0.5 1.4 1.5 2.4 1.1 2.9
+* Average prices for 2nd and 3rd positions *Volatility variation is rounded
+Table 2: Price differentials (US cents/lb)
+C o l o m b i a n C o l o m b i a n C o l ombian Other Milds Other Milds Brazilian New York*
+Milds Milds Milds Naturals
+Other Milds Brazilian Robustas Brazilian Robustas Robustas London*
+Naturals Naturals
+Mar-25 0.95 12.49 147.37 11.54 146.42 134.87 135.11
+Apr-25 1.30 15.87 147.75 14.57 146.44 131.87 134.67
+May-25 -2.25 15.57 157.83 17.83 160.09 142.26 143.58
+Jun-25 -3.08 21.55 163.86 24.63 166.95 142.32 146.35
+Jul-25 -3.13 25.32 155.17 28.45 158.31 129.85 135.74
+Aug-25 0.41 29.84 167.60 29.43 167.19 137.76 147.14
+Sep-25 3.56 28.86 192.92 25.30 189.36 164.07 168.75
+Oct-25 -0.54 29.78 188.19 30.32 188.73 158.41 163.84
+Nov-25 -1.56 28.59 193.84 30.14 195.40 165.26 171.24
+Dec-25 1.18 26.95 191.80 25.76 190.61 164.85 168.85
+Jan-26 7.65 27.83 179.08 20.18 171.43 151.25 154.75
+Feb-26 9.54 22.27 151.16 12.73 141.62 128.89 122.70
+% change between Jan-26 and Feb-26
+24.7% -20.0% -15.6% -36.9% -17.4% -14.8% -20.7%
+* Average prices for 2nd and 3rd positions
+Coffee Market Report – February 2026 10
+Table 3: World Supply/Demand Balance
+% change
+Coffee year commencing 2021 2022 2023 2024 2023/24
+PRODUCTION 165,092 165,785 168,707 177,513 5.2%
+Arabica 91,737 93,876 97,674 102,065 4.5%
+Robusta 73,356 71,910 71,033 75,448 6.2%
+Africa 19,589 18,865 21,173 22,782 7.6%
+Asia & Oceania 51,063 49,275 46,035 49,637 7.8%
+Caribbean, Mexico & Central America 18,053 18,214 17,161 18,304 6.7%
+South America 76,388 79,431 84,338 86,790 2.9%
+CONSUMPTION 170,500 176,855 172,578 175,071 1.4%
+Exporting countries 54,438 55,664 56,344 57,742 2.5%
+Importing countries (Coffee Years) 116,062 121,191 116,233 117,329 0.9%
+Africa 12,677 12,446 11,566 12,145 5.0%
+Asia & Oceania 42,422 43,534 44,163 47,447 7.4%
+Caribbean, Mexico & Central America 5,752 5,980 5,957 6,172 3.6%
+Europe 52,350 56,001 54,178 53,552 -1.2%
+North America 30,228 31,324 28,694 27,745 -3.3%
+South America 27,071 27,570 28,020 28,010 0.0%
+BALANCE -5,407 -11,070 -3,871 2,443
+*preliminary estimates 0.00 0.00 0.00 0.00
+Table 4: Total exports by exporting countries
+Jan-25 Jan-26 % change Year to Date Coffee Year
+2024/25 2025/26 % change
+TOTAL 11,096 12,618 13.7% 43,148 46,384 7.5%
+Arabicas 6,746 6,280 -6.9% 2 7,237 2 6,835 -1.5%
+Colombian Milds 1,300 1,079 -17.0% 5,246 4,769 -9.1%
+Other Milds 1,713 2,244 31.0% 5,728 7,335 28.1%
+Brazilian Naturals 3,733 2,957 -20.8% 16,263 14,730 -9.4%
+Robustas 4,349 6,338 45.7% 15,911 19,549 22.9%
+In thousand 60-kg bags
+Monthly trade statistics are available upon subscription
+Table 5: Certified stocks on the New York and London futures markets
+Mar-25 Apr-25 May-25 Jun-25 Jul-25 Aug-25 Sep-25 Oct-25 Nov-25 Dec-25 Jan-26 Feb-26
+New York 0.80 0.85 0.93 0.91 0.83 0.77 0.62 0.47 0.44 0.48 0.46 0.52
+London
+0.74 0.71 0.92 0.87 1.18 1.13 1.08 1.01 0.73 0.71 0.76 0.76
+In million 60-kg bags
+Coffee Market Report – February 2026 11
+Explanatory Note for Table 3
+For each year, the Secretariat uses statistics received from Members to provide estimates and
+forecasts for annual production, consumption, trade and stocks. As noted in paragraph 100 of
+document ICC-120-16, these statistics can be supplemented and complemented by data from
+other sources when information received from Members is incomplete, delayed or inconsistent.
+The Secretariat also considers multiple sources for generating supply and demand balance sheets
+for non-Members.
+The Secretariat uses the concept of the marketing year, that is the coffee year commencing on
+1 October of each year, when looking at the global supply and demand balance. Coffee-producing
+countries are located in different regions around the world, with various crop years, i.e. the 12-
+month period from one harvest to the next. The crop years currently used by the Secretariat
+commence on 1 April, 1 July and 1 October. To maintain consistency, the Secretariat converts
+production data from a crop year basis to a marketing year basis depending on the harvest
+months for each country. Using a coffee year basis for the global coffee supply and demand, as
+well as prices, ensures that analysis of the market situation occurs within the same time period.
+For example, the 2022/23 coffee year began on 1 October 2022 and ended 30 September 2023.
+However, for producers with crop years commencing on 1 April, the crop year production occurs
+across two coffee years. Brazil’s 2022/23 crop year began on 1 April 2022 and finished 31 March
+2023, covering the first half of coffee year 2022/23. However, Brazil’s 2023/24 crop year
+commenced 1 April 2023 and ended 31 March 2024, covering the latter half of coffee year
+2023/24. In order to bring the crop year production into a single coffee year, the Secretariat
+would allocate a portion of the April–March 2022/23 crop year production and a portion of the
+April–March 2023/24 production into 2022/23 coffee year production.
+It should be noted that while estimates for coffee year production are created for each individual
+country, these are made for the purpose of creating a consistent aggregated supply-demand
+balance for analytical purposes and does not represent the production occurring on the ground
+within the individual countries.
+Note:
+Materials provided may be used, reproduced, or transmitted, in whole or in part, in any form or
+by any means, electronic or mechanical, including photocopying, recording or the use of any
+information storage and retrieval system, if the International Coffee Organization (ICO) is clearly
+acknowledged as the source.
+* * * * *
+Coffee Market Report – February 2026 12
