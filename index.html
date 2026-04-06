@@ -2,1210 +2,660 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Coffee Market Analytics</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+:root{
+  --bg:#08090c; --bg2:#0f1117; --bg3:#161b24;
+  --border:#1d2535; --border2:#283040;
+  --text:#dde4f0; --text2:#7a8899; --text3:#3d4d60;
+  --accent:#e8a020; --green:#22c55e; --red:#ef4444;
+  --c0:#e8a020; --c1:#3b82f6; --c2:#22c55e;
+  --c3:#ef4444; --c4:#a78bfa; --c5:#06b6d4;
+  --c6:#f97316; --c7:#ec4899; --c8:#84cc16; --c9:#14b8a6;
+  --c10:#e8a020; --c11:#3b82f6; --c12:#22c55e;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text);font-size:13px;min-height:100vh}
 
-:root {
-  --bg:        #0a0c0f;
-  --bg2:       #111318;
-  --bg3:       #181c23;
-  --border:    #1e2530;
-  --border2:   #2a3040;
-  --text:      #e2e8f0;
-  --text2:     #8892a4;
-  --text3:     #4a5568;
-  --accent:    #f0a500;
-  --accent2:   #e07b00;
-  --green:     #22c55e;
-  --red:       #ef4444;
-  --blue:      #3b82f6;
-  --purple:    #a78bfa;
+/* HEADER */
+.hdr{height:52px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:200;background:var(--bg)}
+.logo{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;color:var(--accent);letter-spacing:.06em}
+.logo span{color:var(--text3);font-weight:400}
+.hdr-right{display:flex;align-items:center;gap:12px}
+.upd{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text3)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-  /* Chart colors */
-  --c1: #f0a500;   /* I-CIP / Colombian Milds */
-  --c2: #3b82f6;   /* Other Milds */
-  --c3: #22c55e;   /* Brazilian Naturals */
-  --c4: #ef4444;   /* Robustas */
-  --c5: #a78bfa;   /* NY ICE */
-  --c6: #06b6d4;   /* London ICE */
-}
+/* KPI BAR */
+.kpi-bar{display:grid;grid-template-columns:repeat(9,1fr);border-bottom:1px solid var(--border);background:var(--bg2)}
+.kpi{padding:14px 16px;border-right:1px solid var(--border);cursor:default}
+.kpi:last-child{border-right:none}
+.kpi-lbl{font-size:9px;font-weight:600;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+.kpi-val{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;color:var(--text);line-height:1}
+.kpi-unit{font-size:10px;color:var(--text3);margin-left:2px}
+.kpi-chg{font-family:'IBM Plex Mono',monospace;font-size:10px;margin-top:4px}
+.pos{color:var(--green)} .neg{color:var(--red)} .neu{color:var(--text3)}
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+/* CONTROLS */
+.ctrl{height:38px;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:0;background:var(--bg)}
+.ctrl-lbl{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:.1em;margin-right:8px}
+.rbtn{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:4px 14px;border:1px solid transparent;background:none;color:var(--text2);cursor:pointer;transition:all .15s;letter-spacing:.04em}
+.rbtn:hover{color:var(--text);border-color:var(--border2)}
+.rbtn.on{color:var(--accent);border-color:var(--accent);background:rgba(232,160,32,.08)}
+.ctrl-info{margin-left:16px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text3)}
 
-body {
-  font-family: 'IBM Plex Sans', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  font-size: 13px;
-}
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--border);background:var(--bg);padding:0 24px;overflow-x:auto}
+.tab{font-size:11px;font-weight:500;padding:10px 18px;border:none;border-bottom:2px solid transparent;background:none;color:var(--text3);cursor:pointer;white-space:nowrap;letter-spacing:.05em;text-transform:uppercase;transition:all .15s}
+.tab:hover{color:var(--text2)}
+.tab.on{color:var(--accent);border-bottom-color:var(--accent)}
 
-/* ── Header ── */
-.header {
-  border-bottom: 1px solid var(--border);
-  padding: 0 24px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: var(--bg);
-}
-.header-left { display: flex; align-items: center; gap: 16px; }
-.logo {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--accent);
-  letter-spacing: 0.05em;
-}
-.logo span { color: var(--text2); font-weight: 400; }
-.header-tag {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  color: var(--text3);
-  border: 1px solid var(--border2);
-  padding: 2px 8px;
-  letter-spacing: 0.1em;
-}
-.header-right { display: flex; align-items: center; gap: 12px; }
-.last-updated {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  color: var(--text3);
-}
-.live-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--green);
-  animation: pulse 2s infinite;
-}
-@keyframes pulse {
-  0%,100% { opacity: 1; }
-  50%      { opacity: 0.3; }
-}
+/* CONTENT */
+.content{padding:24px;max-width:1400px;margin:0 auto}
+.tab-pane{display:none}
+.tab-pane.on{display:block}
 
-/* ── Range Bar ── */
-.range-bar {
-  border-bottom: 1px solid var(--border);
-  padding: 0 24px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: var(--bg);
-}
-.range-btn {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
-  padding: 4px 12px;
-  border: 1px solid transparent;
-  background: none;
-  color: var(--text2);
-  cursor: pointer;
-  letter-spacing: 0.05em;
-  transition: all 0.15s;
-}
-.range-btn:hover { color: var(--text); border-color: var(--border2); }
-.range-btn.active {
-  color: var(--accent);
-  border-color: var(--accent2);
-  background: rgba(240,165,0,0.08);
-}
-.range-sep { width: 1px; height: 16px; background: var(--border); margin: 0 8px; }
+/* SECTION LABEL */
+.sec-lbl{font-size:9px;font-weight:600;color:var(--text3);letter-spacing:.14em;text-transform:uppercase;padding:12px 0 10px;border-bottom:1px solid var(--border);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.sec-lbl::before{content:'';width:3px;height:12px;background:var(--accent);flex-shrink:0}
 
-/* ── Section Nav ── */
-.section-nav {
-  border-bottom: 1px solid var(--border);
-  padding: 0 24px;
-  display: flex;
-  gap: 0;
-  background: var(--bg);
-  overflow-x: auto;
-}
-.nav-btn {
-  font-size: 11px;
-  font-weight: 500;
-  padding: 10px 16px;
-  border: none;
-  border-bottom: 2px solid transparent;
-  background: none;
-  color: var(--text3);
-  cursor: pointer;
-  white-space: nowrap;
-  letter-spacing: 0.04em;
-  transition: all 0.15s;
-  text-transform: uppercase;
-}
-.nav-btn:hover { color: var(--text2); }
-.nav-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+/* CHART CARDS */
+.chart-row{margin-bottom:14px}
+.chart-2col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.ccard{background:var(--bg2);border:1px solid var(--border);padding:16px}
+.ccard:hover{border-color:var(--border2)}
+.ctitle{font-size:10px;font-weight:600;color:var(--text2);letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px}
+.csub{font-size:9px;color:var(--text3);margin-bottom:12px}
+.cwrap{position:relative}
 
-/* ── Main Layout ── */
-.main { padding: 24px; max-width: 1600px; margin: 0 auto; }
+/* LEGEND */
+.leg{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
+.li{display:flex;align-items:center;gap:5px;font-size:9px;color:var(--text2)}
+.ld{width:16px;height:2px;border-radius:1px;flex-shrink:0}
 
-/* ── KPI Cards ── */
-.kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1px;
-  background: var(--border);
-  border: 1px solid var(--border);
-  margin-bottom: 24px;
-}
-.kpi-card {
-  background: var(--bg2);
-  padding: 20px 20px 16px;
-  position: relative;
-  overflow: hidden;
-}
-.kpi-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: var(--accent);
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-.kpi-card:hover::before { opacity: 1; }
-.kpi-label {
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--text3);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin-bottom: 10px;
-}
-.kpi-value {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 28px;
-  font-weight: 600;
-  color: var(--text);
-  line-height: 1;
-  margin-bottom: 8px;
-}
-.kpi-unit {
-  font-size: 12px;
-  color: var(--text3);
-  margin-left: 4px;
-}
-.kpi-change {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.kpi-change.pos { color: var(--green); }
-.kpi-change.neg { color: var(--red); }
-.kpi-change.neu { color: var(--text3); }
-.kpi-period { font-size: 10px; color: var(--text3); margin-left: 4px; }
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 
-/* ── Section ── */
-.section { margin-bottom: 32px; }
-.section-title {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--text3);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.section-title::before {
-  content: '';
-  display: inline-block;
-  width: 3px; height: 12px;
-  background: var(--accent);
-}
-
-/* ── Chart Grid ── */
-.chart-grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-.chart-grid-3 {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-.chart-grid-4 {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-.chart-full { margin-bottom: 12px; }
-
-/* ── Chart Card ── */
-.chart-card {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  padding: 16px;
-  position: relative;
-}
-.chart-card:hover { border-color: var(--border2); }
-.chart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 14px;
-}
-.chart-title {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text2);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-.chart-subtitle {
-  font-size: 10px;
-  color: var(--text3);
-  margin-top: 2px;
-}
-.chart-badge {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 9px;
-  color: var(--text3);
-  border: 1px solid var(--border2);
-  padding: 2px 6px;
-  letter-spacing: 0.06em;
-}
-.chart-wrap { position: relative; }
-.chart-wrap canvas { display: block; }
-
-/* ── Loading ── */
-.loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 300px;
-  gap: 16px;
-  color: var(--text3);
-}
-.loading-bar {
-  width: 200px; height: 2px;
-  background: var(--border);
-  position: relative;
-  overflow: hidden;
-}
-.loading-bar::after {
-  content: '';
-  position: absolute;
-  top: 0; left: -50%;
-  width: 50%; height: 100%;
-  background: var(--accent);
-  animation: load 1.2s infinite;
-}
-@keyframes load {
-  0%   { left: -50%; }
-  100% { left: 100%; }
-}
-.loading-text {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-}
-
-/* ── Legend ── */
-.chart-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 10px;
-}
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 10px;
-  color: var(--text2);
-}
-.legend-dot {
-  width: 8px; height: 2px;
-  border-radius: 1px;
-}
-
-/* ── Footer ── */
-.footer {
-  border-top: 1px solid var(--border);
-  padding: 16px 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 10px;
-  color: var(--text3);
-}
-.footer a { color: var(--text3); text-decoration: none; }
-.footer a:hover { color: var(--accent); }
-
-/* Scrollbar */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
-
-@media (max-width: 900px) {
-  .chart-grid-2, .chart-grid-3, .chart-grid-4 { grid-template-columns: 1fr; }
-}
+@media(max-width:900px){.kpi-bar{grid-template-columns:repeat(3,1fr)}.chart-2col{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
-<!-- Header -->
-<div class="header">
-  <div class="header-left">
-    <div class="logo">☕ COFFEE<span>/ANALYTICS</span></div>
-    <div class="header-tag">ICO MARKET DATA</div>
-  </div>
-  <div class="header-right">
-    <div class="last-updated" id="lastUpdated">Loading...</div>
-    <div class="live-dot"></div>
+<!-- HEADER -->
+<div class="hdr">
+  <div class="logo">☕ COFFEE<span>/ANALYTICS</span></div>
+  <div class="hdr-right">
+    <div class="upd" id="updEl">Loading...</div>
+    <div class="dot"></div>
   </div>
 </div>
 
-<!-- Range Bar -->
-<div class="range-bar">
-  <span style="font-size:10px;color:var(--text3);letter-spacing:0.08em;margin-right:8px;font-family:'IBM Plex Mono',monospace;">RANGE</span>
-  <button class="range-btn" onclick="setRange(12)">1Y</button>
-  <button class="range-btn" onclick="setRange(36)">3Y</button>
-  <button class="range-btn" onclick="setRange(60)">5Y</button>
-  <button class="range-btn active" onclick="setRange(0)">ALL</button>
-  <div class="range-sep"></div>
-  <span style="font-size:10px;color:var(--text3);font-family:'IBM Plex Mono',monospace;" id="rangeLabel">Oct 2015 – present</span>
+<!-- KPI BAR -->
+<div class="kpi-bar">
+  <div class="kpi"><div class="kpi-lbl">I-CIP</div><div class="kpi-val" id="v0">—<span class="kpi-unit">¢/lb</span></div><div class="kpi-chg neu" id="c0">—</div></div>
+  <div class="kpi"><div class="kpi-lbl">Colombian Milds</div><div class="kpi-val" id="v1">—<span class="kpi-unit">¢/lb</span></div><div class="kpi-chg neu" id="c1">—</div></div>
+  <div class="kpi"><div class="kpi-lbl">Other Milds</div><div class="kpi-val" id="v2">—<span class="kpi-unit">¢/lb</span></div><div class="kpi-chg neu" id="c2">—</div></div>
+  <div class="kpi"><div class="kpi-lbl">Brazilian Naturals</div><div class="kpi-val" id="v3">—<span class="kpi-unit">¢/lb</span></div><div class="kpi-chg neu" id="c3">—</div></div>
+  <div class="kpi"><div class="kpi-lbl">Robustas</div><div class="kpi-val" id="v4">—<span class="kpi-unit">¢/lb</span></div><div class="kpi-chg neu" id="c4">—</div></div>
+  <div class="kpi"><div class="kpi-lbl">NY ICE</div><div class="kpi-val" id="v5">—<span class="kpi-unit">¢/lb</span></div><div class="kpi-chg neu" id="c5">—</div></div>
+  <div class="kpi"><div class="kpi-lbl">London ICE</div><div class="kpi-val" id="v6">—<span class="kpi-unit">¢/lb</span></div><div class="kpi-chg neu" id="c6">—</div></div>
+  <div class="kpi"><div class="kpi-lbl">NY Stocks</div><div class="kpi-val" id="v7">—<span class="kpi-unit">m bags</span></div><div class="kpi-chg neu" id="c7">—</div></div>
+  <div class="kpi"><div class="kpi-lbl">London Stocks</div><div class="kpi-val" id="v8">—<span class="kpi-unit">m bags</span></div><div class="kpi-chg neu" id="c8">—</div></div>
 </div>
 
-<!-- Section Nav -->
-<div class="section-nav">
-  <button class="nav-btn active" onclick="scrollTo('prices-section')">Prices</button>
-  <button class="nav-btn" onclick="scrollTo('differentials-section')">Differentials</button>
-  <button class="nav-btn" onclick="scrollTo('spread-section')">Arabica/Robusta Spread</button>
-  <button class="nav-btn" onclick="scrollTo('exports-section')">Exports</button>
-  <button class="nav-btn" onclick="scrollTo('stocks-section')">Certified Stocks</button>
+<!-- CONTROLS -->
+<div class="ctrl">
+  <span class="ctrl-lbl">RANGE</span>
+  <button class="rbtn" onclick="setRange(12,this)">1Y</button>
+  <button class="rbtn" onclick="setRange(36,this)">3Y</button>
+  <button class="rbtn" onclick="setRange(60,this)">5Y</button>
+  <button class="rbtn on" id="btnAll" onclick="setRange(0,this)">ALL</button>
+  <span class="ctrl-info" id="rangeInfo"></span>
 </div>
 
-<!-- Main -->
-<div class="main">
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab on" onclick="showTab('prices',this)">Prices</button>
+  <button class="tab" onclick="showTab('diffs',this)">Differentials</button>
+  <button class="tab" onclick="showTab('season',this)">Seasonality</button>
+  <button class="tab" onclick="showTab('stocks',this)">Cert. Stocks</button>
+  <button class="tab" onclick="showTab('exports',this)">Exports</button>
+</div>
 
-  <!-- KPI Cards -->
-  <div class="kpi-grid" id="kpiGrid">
-    <div class="kpi-card">
-      <div class="kpi-label">I-CIP Composite</div>
-      <div class="kpi-value" id="kpi-icip">—<span class="kpi-unit">¢/lb</span></div>
-      <div class="kpi-change neu" id="kpi-icip-chg">Loading...</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Colombian Milds</div>
-      <div class="kpi-value" id="kpi-col">—<span class="kpi-unit">¢/lb</span></div>
-      <div class="kpi-change neu" id="kpi-col-chg">Loading...</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Brazilian Naturals</div>
-      <div class="kpi-value" id="kpi-braz">—<span class="kpi-unit">¢/lb</span></div>
-      <div class="kpi-change neu" id="kpi-braz-chg">Loading...</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Robustas</div>
-      <div class="kpi-value" id="kpi-rob">—<span class="kpi-unit">¢/lb</span></div>
-      <div class="kpi-change neu" id="kpi-rob-chg">Loading...</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">NY ICE Futures</div>
-      <div class="kpi-value" id="kpi-ny">—<span class="kpi-unit">¢/lb</span></div>
-      <div class="kpi-change neu" id="kpi-ny-chg">Loading...</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">London ICE Futures</div>
-      <div class="kpi-value" id="kpi-lon">—<span class="kpi-unit">¢/lb</span></div>
-      <div class="kpi-change neu" id="kpi-lon-chg">Loading...</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Total Exports</div>
-      <div class="kpi-value" id="kpi-exp">—<span class="kpi-unit">k bags</span></div>
-      <div class="kpi-change neu" id="kpi-exp-chg">Loading...</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">NY Certified Stocks</div>
-      <div class="kpi-value" id="kpi-ny-stk">—<span class="kpi-unit">m bags</span></div>
-      <div class="kpi-change neu" id="kpi-ny-stk-chg">Loading...</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">London Certified Stocks</div>
-      <div class="kpi-value" id="kpi-lon-stk">—<span class="kpi-unit">m bags</span></div>
-      <div class="kpi-change neu" id="kpi-lon-stk-chg">Loading...</div>
-    </div>
+<!-- TAB: PRICES -->
+<div id="tab-prices" class="tab-pane on">
+<div class="content">
+  <div class="sec-lbl">All 7 Indicators — Combined</div>
+  <div class="chart-row ccard">
+    <div class="ctitle">I-CIP · Colombian Milds · Other Milds · Brazilian Naturals · Robustas · NY ICE · London ICE</div>
+    <div class="csub">US cents per lb — monthly average</div>
+    <div class="cwrap"><canvas id="ch_all" height="70"></canvas></div>
+    <div class="leg" id="leg_all"></div>
   </div>
+  <div class="sec-lbl">Individual Price Indicators</div>
+  <div class="chart-row ccard"><div class="ctitle">ICO Composite Indicator Price (I-CIP)</div><div class="csub">US cents/lb</div><div class="cwrap"><canvas id="ch_icip" height="55"></canvas></div></div>
+  <div class="chart-row ccard"><div class="ctitle">Colombian Milds</div><div class="csub">US cents/lb</div><div class="cwrap"><canvas id="ch_col" height="55"></canvas></div></div>
+  <div class="chart-row ccard"><div class="ctitle">Other Milds</div><div class="csub">US cents/lb</div><div class="cwrap"><canvas id="ch_other" height="55"></canvas></div></div>
+  <div class="chart-row ccard"><div class="ctitle">Brazilian Naturals</div><div class="csub">US cents/lb</div><div class="cwrap"><canvas id="ch_braz" height="55"></canvas></div></div>
+  <div class="chart-row ccard"><div class="ctitle">Robustas</div><div class="csub">US cents/lb</div><div class="cwrap"><canvas id="ch_rob" height="55"></canvas></div></div>
+  <div class="chart-row ccard"><div class="ctitle">New York ICE Futures (2nd + 3rd position)</div><div class="csub">US cents/lb</div><div class="cwrap"><canvas id="ch_ny" height="55"></canvas></div></div>
+  <div class="chart-row ccard"><div class="ctitle">London ICE Futures (2nd + 3rd position)</div><div class="csub">US cents/lb</div><div class="cwrap"><canvas id="ch_lon" height="55"></canvas></div></div>
+</div>
+</div>
 
-  <!-- PRICES SECTION -->
-  <div class="section" id="prices-section">
-    <div class="section-title">Price Indicators</div>
+<!-- TAB: DIFFERENTIALS -->
+<div id="tab-diffs" class="tab-pane">
+<div class="content">
+  <div class="sec-lbl">Price Differentials vs Futures — Over Time (US cents/lb)</div>
+  <div class="chart-row ccard"><div class="ctitle">Colombian Milds − NY ICE</div><div class="csub">Positive = Colombian Milds trading above NY futures</div><div class="cwrap"><canvas id="ch_d1" height="55"></canvas></div></div>
+  <div class="chart-row ccard"><div class="ctitle">Other Milds − NY ICE</div><div class="csub">Positive = Other Milds trading above NY futures</div><div class="cwrap"><canvas id="ch_d2" height="55"></canvas></div></div>
+  <div class="chart-row ccard"><div class="ctitle">Brazilian Naturals − NY ICE</div><div class="csub">Positive = Brazilian Naturals trading above NY futures</div><div class="cwrap"><canvas id="ch_d3" height="55"></canvas></div></div>
+  <div class="chart-row ccard"><div class="ctitle">Robustas − London ICE</div><div class="csub">Positive = Robustas trading above London futures</div><div class="cwrap"><canvas id="ch_d4" height="55"></canvas></div></div>
+  <div class="chart-row ccard"><div class="ctitle">Arbitrage — NY ICE minus London ICE</div><div class="csub">Arabica–Robusta futures spread (US cents/lb)</div><div class="cwrap"><canvas id="ch_arb" height="55"></canvas></div></div>
+</div>
+</div>
 
-    <div class="chart-full chart-card">
-      <div class="chart-header">
-        <div>
-          <div class="chart-title">ICO Composite Indicator Price (I-CIP)</div>
-          <div class="chart-subtitle">Monthly average — US cents per lb</div>
-        </div>
-        <div class="chart-badge">TABLE 1</div>
-      </div>
-      <div class="chart-wrap"><canvas id="icipChart" height="90"></canvas></div>
-    </div>
-
-    <div class="chart-grid-2" style="margin-top:12px;">
-      <div class="chart-card">
-        <div class="chart-header">
-          <div>
-            <div class="chart-title">Arabica Group Prices</div>
-            <div class="chart-subtitle">Colombian Milds · Other Milds · Brazilian Naturals</div>
-          </div>
-        </div>
-        <div class="chart-wrap"><canvas id="arabicaChart" height="140"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-header">
-          <div>
-            <div class="chart-title">Robustas vs Futures Markets</div>
-            <div class="chart-subtitle">Robustas · NY ICE · London ICE</div>
-          </div>
-        </div>
-        <div class="chart-wrap"><canvas id="robustaChart" height="140"></canvas></div>
-      </div>
-    </div>
+<!-- TAB: SEASONALITY -->
+<div id="tab-season" class="tab-pane">
+<div class="content">
+  <div class="sec-lbl">Price Seasonality — Each line = one calendar year</div>
+  <div class="chart-2col">
+    <div class="ccard"><div class="ctitle">I-CIP Seasonality</div><div class="csub">US cents/lb by month</div><div class="cwrap"><canvas id="ss_icip" height="120"></canvas></div><div class="leg" id="leg_ss_icip"></div></div>
+    <div class="ccard"><div class="ctitle">Colombian Milds Seasonality</div><div class="csub">US cents/lb by month</div><div class="cwrap"><canvas id="ss_col" height="120"></canvas></div><div class="leg" id="leg_ss_col"></div></div>
   </div>
-
-  <!-- DIFFERENTIALS SECTION -->
-  <div class="section" id="differentials-section">
-    <div class="section-title">Price Differentials vs Futures</div>
-
-    <div class="chart-grid-2">
-      <div class="chart-card">
-        <div class="chart-header">
-          <div>
-            <div class="chart-title">Differentials vs NY ICE — Over Time</div>
-            <div class="chart-subtitle">Colombian · Other · Brazilian minus NY ICE · Robustas minus London ICE</div>
-          </div>
-          <div class="chart-badge">¢/LB</div>
-        </div>
-        <div class="chart-wrap"><canvas id="diffTimeChart" height="140"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-header">
-          <div>
-            <div class="chart-title">Differentials — Seasonality</div>
-            <div class="chart-subtitle">Average by calendar month across all years</div>
-          </div>
-        </div>
-        <div class="chart-wrap"><canvas id="diffSeasonChart" height="140"></canvas></div>
-      </div>
-    </div>
-
-    <div class="chart-grid-4" style="margin-top:0;">
-      <div class="chart-card">
-        <div class="chart-header"><div><div class="chart-title">Colombian Milds − NY ICE</div></div></div>
-        <div class="chart-wrap"><canvas id="diffColChart" height="130"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-header"><div><div class="chart-title">Other Milds − NY ICE</div></div></div>
-        <div class="chart-wrap"><canvas id="diffOtherChart" height="130"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-header"><div><div class="chart-title">Brazilian Naturals − NY ICE</div></div></div>
-        <div class="chart-wrap"><canvas id="diffBrazChart" height="130"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-header"><div><div class="chart-title">Robustas − London ICE</div></div></div>
-        <div class="chart-wrap"><canvas id="diffRobChart" height="130"></canvas></div>
-      </div>
-    </div>
+  <div class="chart-2col">
+    <div class="ccard"><div class="ctitle">Other Milds Seasonality</div><div class="csub">US cents/lb by month</div><div class="cwrap"><canvas id="ss_other" height="120"></canvas></div><div class="leg" id="leg_ss_other"></div></div>
+    <div class="ccard"><div class="ctitle">Brazilian Naturals Seasonality</div><div class="csub">US cents/lb by month</div><div class="cwrap"><canvas id="ss_braz" height="120"></canvas></div><div class="leg" id="leg_ss_braz"></div></div>
   </div>
-
-  <!-- SPREAD SECTION -->
-  <div class="section" id="spread-section">
-    <div class="section-title">Arabica / Robusta Spread</div>
-    <div class="chart-grid-2">
-      <div class="chart-card">
-        <div class="chart-header">
-          <div>
-            <div class="chart-title">Arabica–Robusta Spread — Over Time</div>
-            <div class="chart-subtitle">NY ICE minus London ICE (US cents/lb)</div>
-          </div>
-          <div class="chart-badge">¢/LB</div>
-        </div>
-        <div class="chart-wrap"><canvas id="spreadTimeChart" height="140"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-header">
-          <div>
-            <div class="chart-title">Arabica–Robusta Spread — Seasonality</div>
-            <div class="chart-subtitle">Average by calendar month, each year shown</div>
-          </div>
-        </div>
-        <div class="chart-wrap"><canvas id="spreadSeasonChart" height="140"></canvas></div>
-      </div>
-    </div>
+  <div class="chart-2col">
+    <div class="ccard"><div class="ctitle">Robustas Seasonality</div><div class="csub">US cents/lb by month</div><div class="cwrap"><canvas id="ss_rob" height="120"></canvas></div><div class="leg" id="leg_ss_rob"></div></div>
+    <div class="ccard"><div class="ctitle">NY ICE Seasonality</div><div class="csub">US cents/lb by month</div><div class="cwrap"><canvas id="ss_ny" height="120"></canvas></div><div class="leg" id="leg_ss_ny"></div></div>
   </div>
-
-  <!-- EXPORTS SECTION -->
-  <div class="section" id="exports-section">
-    <div class="section-title">Green Bean Exports</div>
-    <div class="chart-full chart-card">
-      <div class="chart-header">
-        <div>
-          <div class="chart-title">Monthly Exports by Category</div>
-          <div class="chart-subtitle">Thousand 60-kg bags</div>
-        </div>
-        <div class="chart-badge">TABLE 4</div>
-      </div>
-      <div class="chart-wrap"><canvas id="exportsBarChart" height="90"></canvas></div>
-    </div>
-    <div class="chart-grid-2" style="margin-top:12px;">
-      <div class="chart-card">
-        <div class="chart-header">
-          <div>
-            <div class="chart-title">Total Exports — Seasonality</div>
-            <div class="chart-subtitle">Each line = one coffee year (Oct–Sep)</div>
-          </div>
-        </div>
-        <div class="chart-wrap"><canvas id="expTotalSeasonChart" height="140"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-header">
-          <div>
-            <div class="chart-title">Arabica vs Robusta Exports — Seasonality</div>
-            <div class="chart-subtitle">Each line = one year</div>
-          </div>
-        </div>
-        <div class="chart-wrap"><canvas id="expGroupSeasonChart" height="140"></canvas></div>
-      </div>
-    </div>
+  <div class="chart-2col">
+    <div class="ccard"><div class="ctitle">London ICE Seasonality</div><div class="csub">US cents/lb by month</div><div class="cwrap"><canvas id="ss_lon" height="120"></canvas></div><div class="leg" id="leg_ss_lon"></div></div>
+    <div class="ccard" style="visibility:hidden"></div>
   </div>
-
-  <!-- CERTIFIED STOCKS SECTION -->
-  <div class="section" id="stocks-section">
-    <div class="section-title">Certified Stocks</div>
-    <div class="chart-full chart-card">
-      <div class="chart-header">
-        <div>
-          <div class="chart-title">NY and London Certified Stocks — Over Time</div>
-          <div class="chart-subtitle">Million 60-kg bags</div>
-        </div>
-        <div class="chart-badge">TABLE 5</div>
-      </div>
-      <div class="chart-wrap"><canvas id="stocksTimeChart" height="90"></canvas></div>
-    </div>
-    <div class="chart-grid-2" style="margin-top:12px;">
-      <div class="chart-card">
-        <div class="chart-header">
-          <div>
-            <div class="chart-title">NY Stocks — Seasonality</div>
-            <div class="chart-subtitle">Each line = one year</div>
-          </div>
-        </div>
-        <div class="chart-wrap"><canvas id="nyStockSeasonChart" height="140"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-header">
-          <div>
-            <div class="chart-title">London Stocks — Seasonality</div>
-            <div class="chart-subtitle">Each line = one year</div>
-          </div>
-        </div>
-        <div class="chart-wrap"><canvas id="lonStockSeasonChart" height="140"></canvas></div>
-      </div>
-    </div>
+  <div class="sec-lbl">Differential Seasonality — Each line = one calendar year</div>
+  <div class="chart-2col">
+    <div class="ccard"><div class="ctitle">Colombian Milds − NY ICE Seasonality</div><div class="csub">US cents/lb by month</div><div class="cwrap"><canvas id="ss_d1" height="120"></canvas></div><div class="leg" id="leg_ss_d1"></div></div>
+    <div class="ccard"><div class="ctitle">Other Milds − NY ICE Seasonality</div><div class="csub">US cents/lb by month</div><div class="cwrap"><canvas id="ss_d2" height="120"></canvas></div><div class="leg" id="leg_ss_d2"></div></div>
   </div>
+  <div class="chart-2col">
+    <div class="ccard"><div class="ctitle">Brazilian Naturals − NY ICE Seasonality</div><div class="csub">US cents/lb by month</div><div class="cwrap"><canvas id="ss_d3" height="120"></canvas></div><div class="leg" id="leg_ss_d3"></div></div>
+    <div class="ccard"><div class="ctitle">Robustas − London ICE Seasonality</div><div class="csub">US cents/lb by month</div><div class="cwrap"><canvas id="ss_d4" height="120"></canvas></div><div class="leg" id="leg_ss_d4"></div></div>
+  </div>
+  <div class="chart-2col">
+    <div class="ccard"><div class="ctitle">Arbitrage (NY − London) Seasonality</div><div class="csub">US cents/lb by month</div><div class="cwrap"><canvas id="ss_arb" height="120"></canvas></div><div class="leg" id="leg_ss_arb"></div></div>
+    <div class="ccard" style="visibility:hidden"></div>
+  </div>
+</div>
+</div>
 
-</div><!-- /main -->
+<!-- TAB: CERT STOCKS -->
+<div id="tab-stocks" class="tab-pane">
+<div class="content">
+  <div class="sec-lbl">Certified Stocks — Over Time</div>
+  <div class="chart-row ccard"><div class="ctitle">New York — Certified Stocks</div><div class="csub">Million 60-kg bags</div><div class="cwrap"><canvas id="ch_nystk" height="55"></canvas></div></div>
+  <div class="chart-row ccard"><div class="ctitle">London — Certified Stocks</div><div class="csub">Million 60-kg bags</div><div class="cwrap"><canvas id="ch_lonstk" height="55"></canvas></div></div>
+  <div class="sec-lbl">Certified Stocks — Seasonality</div>
+  <div class="chart-2col">
+    <div class="ccard"><div class="ctitle">New York Stocks Seasonality</div><div class="csub">Million 60-kg bags by month</div><div class="cwrap"><canvas id="ss_nystk" height="120"></canvas></div><div class="leg" id="leg_ss_nystk"></div></div>
+    <div class="ccard"><div class="ctitle">London Stocks Seasonality</div><div class="csub">Million 60-kg bags by month</div><div class="cwrap"><canvas id="ss_lonstk" height="120"></canvas></div><div class="leg" id="leg_ss_lonstk"></div></div>
+  </div>
+</div>
+</div>
 
-<div class="footer">
-  <div>Data source: <a href="https://ico.org/resources/coffee-market-report-statistics-section/" target="_blank">ICO Monthly Coffee Market Reports</a> · Updated monthly</div>
-  <div style="font-family:'IBM Plex Mono',monospace;">BMR-Com/coffee-analytics</div>
+<!-- TAB: EXPORTS -->
+<div id="tab-exports" class="tab-pane">
+<div class="content">
+  <div class="sec-lbl">Exports — Over Time (thousand 60-kg bags)</div>
+  <div class="chart-row ccard"><div class="ctitle">Total Exports</div><div class="csub">Thousand 60-kg bags</div><div class="cwrap"><canvas id="ch_xtot" height="55"></canvas></div></div>
+  <div class="chart-row ccard"><div class="ctitle">Arabicas — Total</div><div class="csub">Thousand 60-kg bags</div><div class="cwrap"><canvas id="ch_xara" height="55"></canvas></div></div>
+  <div class="chart-row ccard"><div class="ctitle">Colombian Milds Exports</div><div class="csub">Thousand 60-kg bags</div><div class="cwrap"><canvas id="ch_xcol" height="55"></canvas></div></div>
+  <div class="chart-row ccard"><div class="ctitle">Other Milds Exports</div><div class="csub">Thousand 60-kg bags</div><div class="cwrap"><canvas id="ch_xoth" height="55"></canvas></div></div>
+  <div class="chart-row ccard"><div class="ctitle">Brazilian Naturals Exports</div><div class="csub">Thousand 60-kg bags</div><div class="cwrap"><canvas id="ch_xbra" height="55"></canvas></div></div>
+  <div class="chart-row ccard"><div class="ctitle">Robustas Exports</div><div class="csub">Thousand 60-kg bags</div><div class="cwrap"><canvas id="ch_xrob" height="55"></canvas></div></div>
+  <div class="sec-lbl">Exports — Seasonality (each line = one calendar year)</div>
+  <div class="chart-2col">
+    <div class="ccard"><div class="ctitle">Total Exports Seasonality</div><div class="csub">Thousand bags by month</div><div class="cwrap"><canvas id="xs_tot" height="120"></canvas></div><div class="leg" id="leg_xs_tot"></div></div>
+    <div class="ccard"><div class="ctitle">Arabicas Seasonality</div><div class="csub">Thousand bags by month</div><div class="cwrap"><canvas id="xs_ara" height="120"></canvas></div><div class="leg" id="leg_xs_ara"></div></div>
+  </div>
+  <div class="chart-2col">
+    <div class="ccard"><div class="ctitle">Colombian Milds Seasonality</div><div class="csub">Thousand bags by month</div><div class="cwrap"><canvas id="xs_col" height="120"></canvas></div><div class="leg" id="leg_xs_col"></div></div>
+    <div class="ccard"><div class="ctitle">Other Milds Seasonality</div><div class="csub">Thousand bags by month</div><div class="cwrap"><canvas id="xs_oth" height="120"></canvas></div><div class="leg" id="leg_xs_oth"></div></div>
+  </div>
+  <div class="chart-2col">
+    <div class="ccard"><div class="ctitle">Brazilian Naturals Seasonality</div><div class="csub">Thousand bags by month</div><div class="cwrap"><canvas id="xs_bra" height="120"></canvas></div><div class="leg" id="leg_xs_bra"></div></div>
+    <div class="ccard"><div class="ctitle">Robustas Seasonality</div><div class="csub">Thousand bags by month</div><div class="cwrap"><canvas id="xs_rob" height="120"></canvas></div><div class="leg" id="leg_xs_rob"></div></div>
+  </div>
+</div>
 </div>
 
 <script>
-// ══════════════════════════════════════════════════════════════════
-// CONFIG
-// ══════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
+// DATA & STATE
+// ═══════════════════════════════════════════════
 const RAW = 'https://raw.githubusercontent.com/BMR-Com/coffee-analytics/main/data/csv/';
-const URLS = {
-  prices:  RAW + 'prices.csv',
-  exports: RAW + 'exports.csv',
-  stocks:  RAW + 'certified_stocks.csv',
-};
+let DATA = { prices:[], exports:[], stocks:[] };
+let rangeMo = 0; // 0=all
+let charts  = {};
 
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-// Season colors — one per year, cycling
-const SEASON_PALETTE = [
-  '#f0a500','#3b82f6','#22c55e','#ef4444','#a78bfa',
+// Season palette — enough for 15 years
+const PAL = [
+  '#e8a020','#3b82f6','#22c55e','#ef4444','#a78bfa',
   '#06b6d4','#f97316','#ec4899','#84cc16','#14b8a6',
-  '#f59e0b','#8b5cf6','#10b981','#dc2626','#6366f1',
+  '#fb923c','#818cf8','#4ade80','#f87171','#c084fc'
 ];
 
-let allData    = {};
-let rangeMonths = 0;  // 0 = all
-let charts     = {};
-
-// ══════════════════════════════════════════════════════════════════
-// CHART DEFAULTS
-// ══════════════════════════════════════════════════════════════════
-// Chart.js 4 safe global defaults
-Chart.defaults.color       = '#4a5568';
-Chart.defaults.borderColor = '#1e2530';
-Chart.defaults.font.family = "'IBM Plex Mono', monospace";
-Chart.defaults.font.size   = 10;
-
-const TOOLTIP_DEFAULTS = {
-  backgroundColor: '#181c23',
-  borderColor:     '#2a3040',
-  borderWidth:     1,
-  titleColor:      '#8892a4',
-  bodyColor:       '#e2e8f0',
-  padding:         10,
-  cornerRadius:    0,
-  mode:            'index',
-  intersect:       false,
+// ═══════════════════════════════════════════════
+// CHART FACTORY
+// ═══════════════════════════════════════════════
+const GRID = '#1d2535';
+const TOOLTIP = {
+  backgroundColor:'#0f1117', borderColor:'#283040', borderWidth:1,
+  titleColor:'#7a8899', bodyColor:'#dde4f0', padding:10, cornerRadius:0
 };
 
-const LINE_OPTS = {
-  responsive: true,
-  maintainAspectRatio: true,
-  animation: false,
-  elements: { point: { radius: 0, hoverRadius: 4 }, line: { tension: 0.3, borderWidth: 1.5 } },
-  scales: {
-    x: { grid: { color: '#1e2530', drawBorder: false }, ticks: { maxTicksLimit: 12, maxRotation: 0 } },
-    y: { grid: { color: '#1e2530', drawBorder: false }, ticks: { maxTicksLimit: 6 } },
-  },
-  plugins: {
-    legend:  { display: false },
-    tooltip: { ...TOOLTIP_DEFAULTS },
-  },
-  interaction: { mode: 'index', intersect: false },
-};
+function baseOpts(extra){
+  return Object.assign({
+    responsive:true, maintainAspectRatio:true, animation:false,
+    elements:{ point:{radius:0,hoverRadius:4}, line:{tension:.3,borderWidth:1.8} },
+    interaction:{ mode:'index', intersect:false },
+    plugins:{ legend:{display:false}, tooltip:Object.assign({mode:'index',intersect:false},TOOLTIP) },
+    scales:{
+      x:{ grid:{color:GRID,drawBorder:false}, ticks:{color:'#3d4d60',maxTicksLimit:14,maxRotation:0}, border:{display:false} },
+      y:{ grid:{color:GRID,drawBorder:false}, ticks:{color:'#3d4d60',maxTicksLimit:6}, border:{display:false} }
+    }
+  }, extra||{});
+}
 
-// ══════════════════════════════════════════════════════════════════
-// HELPERS
-// ══════════════════════════════════════════════════════════════════
-function parseCSV(url) {
-  return new Promise((resolve, reject) => {
-    Papa.parse(url, {
-      download: true, header: true, dynamicTyping: true, skipEmptyLines: true,
-      complete: r => resolve(r.data),
-      error:    e => reject(e),
+function makeChart(id, type, labels, datasets, extraOpts){
+  if(charts[id]) charts[id].destroy();
+  const ctx = document.getElementById(id);
+  if(!ctx) return;
+  charts[id] = new Chart(ctx, {
+    type: type,
+    data: { labels, datasets },
+    options: baseOpts(extraOpts)
+  });
+}
+
+function line(id, labels, datasets, extra){ makeChart(id,'line',labels,datasets,extra); }
+
+function mkDs(label, data, color, extra){
+  return Object.assign({label,data,borderColor:color,backgroundColor:'transparent',
+    borderWidth:1.8,tension:.3,pointRadius:0,pointHoverRadius:4,spanGaps:false}, extra||{});
+}
+
+function mkFill(label, data, color){
+  const hex = color.replace('#','');
+  const r=parseInt(hex.substring(0,2),16),g=parseInt(hex.substring(2,4),16),b=parseInt(hex.substring(4,6),16);
+  return {label,data,borderColor:color,backgroundColor:`rgba(${r},${g},${b},.08)`,
+    fill:true,borderWidth:1.8,tension:.3,pointRadius:0,pointHoverRadius:4,spanGaps:false};
+}
+
+function setLegend(id, items){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.innerHTML = items.map(({color,label})=>
+    `<div class="li"><div class="ld" style="background:${color}"></div>${label}</div>`
+  ).join('');
+}
+
+// ═══════════════════════════════════════════════
+// RANGE FILTER
+// ═══════════════════════════════════════════════
+function filterTime(rows, key){
+  const sorted = [...rows].sort((a,b)=>a[key].localeCompare(b[key]));
+  if(!rangeMo) return sorted;
+  return sorted.slice(-rangeMo);
+}
+
+// For seasonality: get last N calendar years based on range
+// rangeMo=12→last 1 yr, 36→3, 60→5, 0→all
+function seasonYears(allYears){
+  const sorted = [...new Set(allYears)].sort();
+  if(!rangeMo) return sorted;
+  const nYears = rangeMo===12?1 : rangeMo===36?3 : rangeMo===60?5 : sorted.length;
+  return sorted.slice(-nYears);
+}
+
+// ═══════════════════════════════════════════════
+// KPI UPDATE
+// ═══════════════════════════════════════════════
+function kpi(vidx, val, cidx, pct, dec){
+  dec = dec||2;
+  const vEl = document.getElementById('v'+vidx);
+  const cEl = document.getElementById('c'+cidx);
+  if(!vEl||val==null) return;
+  const parts = vEl.innerHTML.split('<span');
+  vEl.innerHTML = parseFloat(val).toFixed(dec) + (parts[1]?'<span'+parts[1]:'');
+  if(!cEl) return;
+  if(pct==null){ cEl.textContent='—'; cEl.className='kpi-chg neu'; return; }
+  const p = parseFloat(pct).toFixed(1);
+  cEl.textContent = (p>0?'▲':'▼')+' '+Math.abs(p)+'% MoM';
+  cEl.className   = 'kpi-chg '+(p>0?'pos':'neg');
+}
+
+function pct(a,b){ return (a!=null&&b!=null&&b!==0) ? ((a-b)/b*100).toFixed(2) : null; }
+
+// ═══════════════════════════════════════════════
+// SEASONALITY HELPER
+// ═══════════════════════════════════════════════
+function buildSeason(rows, monthCol, valueCol, years){
+  // group: { year: { month(1-12): value } }
+  const g = {};
+  rows.forEach(r=>{
+    if(r[monthCol]==null||r[valueCol]==null||isNaN(r[valueCol])) return;
+    const [yr,mo] = r[monthCol].split('-');
+    if(!g[yr]) g[yr]={};
+    g[yr][parseInt(mo)] = parseFloat(r[valueCol]);
+  });
+  // build datasets only for requested years
+  return years.filter(yr=>g[yr]).map((yr,i)=>({
+    label: yr,
+    data: MON.map((_,mi)=>{
+      const v = g[yr]?.[mi+1];
+      return v!=null ? v : null;
+    }),
+    borderColor: PAL[i%PAL.length],
+    backgroundColor:'transparent',
+    borderWidth:1.6, tension:.3, pointRadius:0, pointHoverRadius:4,
+    spanGaps:false // partial year stops where data ends
+  }));
+}
+
+function seasonOpts(){
+  return {
+    scales:{
+      x:{ grid:{color:GRID,drawBorder:false}, ticks:{color:'#3d4d60',maxRotation:0}, border:{display:false} },
+      y:{ grid:{color:GRID,drawBorder:false}, ticks:{color:'#3d4d60',maxTicksLimit:6}, border:{display:false} }
+    }
+  };
+}
+
+// ═══════════════════════════════════════════════
+// BUILD PRICE CHARTS
+// ═══════════════════════════════════════════════
+function buildPrices(){
+  const rows = filterTime(DATA.prices,'price_month');
+  if(!rows.length) return;
+  const lbl = rows.map(r=>r.price_month);
+
+  const COLS = {
+    i_cip:'#e8a020', colombian_milds:'#3b82f6', other_milds:'#22c55e',
+    brazilian_naturals:'#ef4444', robustas:'#a78bfa',
+    new_york_ice:'#06b6d4', london_ice:'#f97316'
+  };
+  const NAMES = {
+    i_cip:'I-CIP', colombian_milds:'Colombian Milds', other_milds:'Other Milds',
+    brazilian_naturals:'Brazilian Naturals', robustas:'Robustas',
+    new_york_ice:'NY ICE', london_ice:'London ICE'
+  };
+
+  // KPIs
+  const last = rows[rows.length-1];
+  const prev = rows[rows.length-2];
+  if(last){
+    kpi(0,last.i_cip,            0, pct(last.i_cip,            prev&&prev.i_cip));
+    kpi(1,last.colombian_milds,  1, pct(last.colombian_milds,  prev&&prev.colombian_milds));
+    kpi(2,last.other_milds,      2, pct(last.other_milds,      prev&&prev.other_milds));
+    kpi(3,last.brazilian_naturals,3,pct(last.brazilian_naturals,prev&&prev.brazilian_naturals));
+    kpi(4,last.robustas,         4, pct(last.robustas,         prev&&prev.robustas));
+    kpi(5,last.new_york_ice,     5, pct(last.new_york_ice,     prev&&prev.new_york_ice));
+    kpi(6,last.london_ice,       6, pct(last.london_ice,       prev&&prev.london_ice));
+    document.getElementById('updEl').textContent = 'Latest: '+last.price_month;
+  }
+
+  // Combined chart
+  const fields = Object.keys(COLS);
+  line('ch_all', lbl, fields.map(f=>mkDs(NAMES[f], rows.map(r=>r[f]), COLS[f])));
+  setLegend('leg_all', fields.map(f=>({color:COLS[f],label:NAMES[f]})));
+
+  // Individual charts
+  const indiv = [
+    ['ch_icip','i_cip','#e8a020'],
+    ['ch_col','colombian_milds','#3b82f6'],
+    ['ch_other','other_milds','#22c55e'],
+    ['ch_braz','brazilian_naturals','#ef4444'],
+    ['ch_rob','robustas','#a78bfa'],
+    ['ch_ny','new_york_ice','#06b6d4'],
+    ['ch_lon','london_ice','#f97316'],
+  ];
+  indiv.forEach(([id,field,color])=>{
+    line(id, lbl, [mkFill(NAMES[field]||field, rows.map(r=>r[field]), color)]);
+  });
+}
+
+// ═══════════════════════════════════════════════
+// BUILD DIFFERENTIAL CHARTS
+// ═══════════════════════════════════════════════
+function buildDiffs(){
+  const rows = filterTime(DATA.prices,'price_month');
+  if(!rows.length) return;
+  const lbl = rows.map(r=>r.price_month);
+
+  function diff(rows,a,b){ return rows.map(r=>(r[a]!=null&&r[b]!=null)?+(r[a]-r[b]).toFixed(2):null); }
+
+  const defs = [
+    ['ch_d1','Colombian Milds − NY ICE', diff(rows,'colombian_milds','new_york_ice'),'#e8a020'],
+    ['ch_d2','Other Milds − NY ICE',     diff(rows,'other_milds','new_york_ice'),    '#3b82f6'],
+    ['ch_d3','Brazilian Naturals − NY',  diff(rows,'brazilian_naturals','new_york_ice'),'#22c55e'],
+    ['ch_d4','Robustas − London ICE',    diff(rows,'robustas','london_ice'),          '#ef4444'],
+    ['ch_arb','NY ICE − London ICE',     diff(rows,'new_york_ice','london_ice'),      '#a78bfa'],
+  ];
+  defs.forEach(([id,label,data,color])=>{
+    line(id, lbl, [mkFill(label,data,color)]);
+  });
+}
+
+// ═══════════════════════════════════════════════
+// BUILD SEASONALITY CHARTS
+// ═══════════════════════════════════════════════
+function buildSeason(){
+  const prices  = DATA.prices;
+  if(!prices.length) return;
+
+  // Get all years from prices data
+  const allYrs = [...new Set(prices.map(r=>r.price_month&&r.price_month.split('-')[0]))].filter(Boolean).sort();
+  const yrs    = seasonYears(allYrs);
+
+  // Build diff rows
+  const diffRows = prices.map(r=>({
+    price_month: r.price_month,
+    d1: (r.colombian_milds!=null&&r.new_york_ice!=null)?+(r.colombian_milds-r.new_york_ice).toFixed(2):null,
+    d2: (r.other_milds!=null&&r.new_york_ice!=null)?+(r.other_milds-r.new_york_ice).toFixed(2):null,
+    d3: (r.brazilian_naturals!=null&&r.new_york_ice!=null)?+(r.brazilian_naturals-r.new_york_ice).toFixed(2):null,
+    d4: (r.robustas!=null&&r.london_ice!=null)?+(r.robustas-r.london_ice).toFixed(2):null,
+    arb:(r.new_york_ice!=null&&r.london_ice!=null)?+(r.new_york_ice-r.london_ice).toFixed(2):null,
+  }));
+
+  function ss(id, legId, monthCol, valueCol, srcRows){
+    const ds = buildSeason(srcRows||prices, monthCol||'price_month', valueCol, yrs);
+    makeChart(id,'line',MON,ds,seasonOpts());
+    setLegend(legId, yrs.filter((_,i)=>ds[i]).map((yr,i)=>({color:PAL[i%PAL.length],label:yr})));
+  }
+
+  ss('ss_icip','leg_ss_icip', 'price_month','i_cip');
+  ss('ss_col', 'leg_ss_col',  'price_month','colombian_milds');
+  ss('ss_other','leg_ss_other','price_month','other_milds');
+  ss('ss_braz','leg_ss_braz', 'price_month','brazilian_naturals');
+  ss('ss_rob', 'leg_ss_rob',  'price_month','robustas');
+  ss('ss_ny',  'leg_ss_ny',   'price_month','new_york_ice');
+  ss('ss_lon', 'leg_ss_lon',  'price_month','london_ice');
+
+  ss('ss_d1',  'leg_ss_d1',   'price_month','d1', diffRows);
+  ss('ss_d2',  'leg_ss_d2',   'price_month','d2', diffRows);
+  ss('ss_d3',  'leg_ss_d3',   'price_month','d3', diffRows);
+  ss('ss_d4',  'leg_ss_d4',   'price_month','d4', diffRows);
+  ss('ss_arb', 'leg_ss_arb',  'price_month','arb',diffRows);
+}
+
+// ═══════════════════════════════════════════════
+// BUILD STOCK CHARTS
+// ═══════════════════════════════════════════════
+function buildStocks(){
+  if(!DATA.stocks.length) return;
+  // Deduplicate by stock_month (keep latest report)
+  const byMo = {};
+  DATA.stocks.forEach(r=>{ byMo[r.stock_month]=r; });
+  const rows = Object.values(byMo).sort((a,b)=>a.stock_month.localeCompare(b.stock_month));
+  const filtered = filterTime(rows,'stock_month');
+  const lbl = filtered.map(r=>r.stock_month);
+
+  // KPIs
+  const last = filtered[filtered.length-1];
+  const prev = filtered[filtered.length-2];
+  if(last){
+    kpi(7,last.new_york_bags_millions, 7, pct(last.new_york_bags_millions,prev&&prev.new_york_bags_millions));
+    kpi(8,last.london_bags_millions,   8, pct(last.london_bags_millions,  prev&&prev.london_bags_millions));
+  }
+
+  line('ch_nystk',  lbl, [mkFill('NY Stocks',     filtered.map(r=>r.new_york_bags_millions),'#e8a020')]);
+  line('ch_lonstk', lbl, [mkFill('London Stocks',  filtered.map(r=>r.london_bags_millions),  '#3b82f6')]);
+
+  // Seasonality
+  const allYrs = [...new Set(rows.map(r=>r.stock_month.split('-')[0]))].sort();
+  const yrs    = seasonYears(allYrs);
+
+  function stkSs(id,legId,field,color){
+    const ds = buildSeason(rows,'stock_month',field,yrs);
+    makeChart(id,'line',MON,ds,seasonOpts());
+    setLegend(legId, yrs.filter((_,i)=>ds[i]).map((yr,i)=>({color:PAL[i%PAL.length],label:yr})));
+  }
+  stkSs('ss_nystk',  'leg_ss_nystk',  'new_york_bags_millions','#e8a020');
+  stkSs('ss_lonstk', 'leg_ss_lonstk', 'london_bags_millions',  '#3b82f6');
+}
+
+// ═══════════════════════════════════════════════
+// BUILD EXPORT CHARTS
+// ═══════════════════════════════════════════════
+function buildExports(){
+  if(!DATA.exports.length) return;
+  const rows = filterTime(DATA.exports,'export_month');
+  const lbl  = rows.map(r=>r.export_month);
+
+  const XCOLS = [
+    ['ch_xtot','total',              '#e8a020','Total Exports'],
+    ['ch_xara','arabicas',           '#3b82f6','Arabicas'],
+    ['ch_xcol','colombian_milds',    '#22c55e','Colombian Milds'],
+    ['ch_xoth','other_milds',        '#ef4444','Other Milds'],
+    ['ch_xbra','brazilian_naturals', '#a78bfa','Brazilian Naturals'],
+    ['ch_xrob','robustas',           '#06b6d4','Robustas'],
+  ];
+  XCOLS.forEach(([id,field,color,label])=>{
+    line(id, lbl, [mkFill(label, rows.map(r=>r[field]), color)]);
+  });
+
+  // Seasonality
+  const allData = DATA.exports; // use all for season
+  const allYrs  = [...new Set(allData.map(r=>r.export_month&&r.export_month.split('-')[0]))].filter(Boolean).sort();
+  const yrs     = seasonYears(allYrs);
+
+  const XSS = [
+    ['xs_tot','leg_xs_tot','total'],
+    ['xs_ara','leg_xs_ara','arabicas'],
+    ['xs_col','leg_xs_col','colombian_milds'],
+    ['xs_oth','leg_xs_oth','other_milds'],
+    ['xs_bra','leg_xs_bra','brazilian_naturals'],
+    ['xs_rob','leg_xs_rob','robustas'],
+  ];
+  XSS.forEach(([id,legId,field])=>{
+    const ds = buildSeason(allData,'export_month',field,yrs);
+    makeChart(id,'line',MON,ds,seasonOpts());
+    setLegend(legId, yrs.filter((_,i)=>ds[i]).map((yr,i)=>({color:PAL[i%PAL.length],label:yr})));
+  });
+}
+
+// ═══════════════════════════════════════════════
+// RANGE CONTROL
+// ═══════════════════════════════════════════════
+function setRange(mo, btn){
+  rangeMo = mo;
+  document.querySelectorAll('.rbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+
+  // Update info label
+  const info = document.getElementById('rangeInfo');
+  if(!info) return;
+  if(!mo){
+    const sorted = [...DATA.prices].sort((a,b)=>a.price_month.localeCompare(b.price_month));
+    info.textContent = sorted.length ? sorted[0].price_month+' – present' : '';
+  } else {
+    const nYears = mo===12?1:mo===36?3:mo===60?5:0;
+    info.textContent = 'Last '+mo+' months · '+nYears+' season lines';
+  }
+  rebuildAll();
+}
+
+function rebuildAll(){
+  buildPrices();
+  buildDiffs();
+  buildSeason();
+  buildStocks();
+  buildExports();
+}
+
+// ═══════════════════════════════════════════════
+// TAB CONTROL
+// ═══════════════════════════════════════════════
+function showTab(name, btn){
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('tab-'+name).classList.add('on');
+  btn.classList.add('on');
+  // Force chart resize after tab switch
+  setTimeout(()=>{ Object.values(charts).forEach(c=>{ try{c.resize()}catch(e){} }); },50);
+}
+
+// ═══════════════════════════════════════════════
+// DATA LOAD
+// ═══════════════════════════════════════════════
+function loadCSV(url){
+  return new Promise((res,rej)=>{
+    Papa.parse(url,{
+      download:true, header:true, dynamicTyping:true, skipEmptyLines:true,
+      complete:r=>res(r.data),
+      error:e=>rej(e)
     });
   });
 }
 
-function filterRange(rows, keyCol) {
-  if (!rangeMonths) return rows;
-  const sorted = [...rows].sort((a,b) => a[keyCol].localeCompare(b[keyCol]));
-  return sorted.slice(-rangeMonths);
-}
+async function init(){
+  document.getElementById('updEl').textContent='Loading data...';
+  try{
+    const [prices,exports_,stocks] = await Promise.all([
+      loadCSV(RAW+'prices.csv'),
+      loadCSV(RAW+'exports.csv'),
+      loadCSV(RAW+'certified_stocks.csv'),
+    ]);
+    DATA.prices  = prices  || [];
+    DATA.exports = exports_|| [];
+    DATA.stocks  = stocks  || [];
 
-function pct(a, b) {
-  if (!a || !b) return null;
-  return ((a - b) / b * 100).toFixed(1);
-}
+    console.log('Prices:',DATA.prices.length,'Exports:',DATA.exports.length,'Stocks:',DATA.stocks.length);
 
-function fmtChg(val, period='MoM') {
-  if (val === null) return { text: '—', cls: 'neu' };
-  const sign = val > 0 ? '▲' : '▼';
-  const cls  = val > 0 ? 'pos' : 'neg';
-  return { text: `${sign} ${Math.abs(val)}% ${period}`, cls };
-}
-
-function setKPI(id, value, chgId, chgPct, period) {
-  const el = document.getElementById(id);
-  if (el && value !== null && value !== undefined) {
-    const parts = el.innerHTML.split('<span');
-    el.innerHTML = parseFloat(value).toFixed(2) + (parts[1] ? '<span' + parts[1] : '');
-  }
-  const chgEl = document.getElementById(chgId);
-  if (chgEl) {
-    const { text, cls } = fmtChg(chgPct, period);
-    chgEl.textContent = text;
-    chgEl.className   = `kpi-change ${cls}`;
-  }
-}
-
-function makeLineChart(id, labels, datasets, opts = {}) {
-  const ctx = document.getElementById(id);
-  if (!ctx) return;
-  if (charts[id]) charts[id].destroy();
-  charts[id] = new Chart(ctx, {
-    type: 'line',
-    data: { labels, datasets },
-    options: { ...LINE_OPTS, ...opts },
-  });
-}
-
-function makeBarChart(id, labels, datasets, opts = {}) {
-  const ctx = document.getElementById(id);
-  if (!ctx) return;
-  if (charts[id]) charts[id].destroy();
-  charts[id] = new Chart(ctx, {
-    type: 'bar',
-    data: { labels, datasets },
-    options: {
-      ...LINE_OPTS,
-      elements: { bar: {} },
-      scales: {
-        ...LINE_OPTS.scales,
-        x: { ...LINE_OPTS.scales.x, stacked: true },
-        y: { ...LINE_OPTS.scales.y, stacked: true },
-      },
-      ...opts,
-    },
-  });
-}
-
-// Seasonality: group rows by year, return { year: { month: value } }
-function groupByYearMonth(rows, monthCol, valueCol) {
-  const grouped = {};
-  rows.forEach(r => {
-    if (!r[monthCol] || r[valueCol] === null || r[valueCol] === undefined) return;
-    const [yr, mo] = r[monthCol].split('-');
-    if (!grouped[yr]) grouped[yr] = {};
-    grouped[yr][parseInt(mo)] = r[valueCol];
-  });
-  return grouped;
-}
-
-function seasonDatasets(grouped, valueLabel = '') {
-  const years = Object.keys(grouped).sort();
-  return years.map((yr, i) => ({
-    label: yr,
-    data: MONTHS.map((_, mi) => grouped[yr][mi + 1] ?? null),
-    borderColor: SEASON_PALETTE[i % SEASON_PALETTE.length],
-    backgroundColor: 'transparent',
-    borderWidth: 1.5,
-    tension: 0.3,
-    pointRadius: 0,
-    pointHoverRadius: 4,
-    spanGaps: true,
-  }));
-}
-
-function seasonLegend(years) {
-  return years.map((yr, i) => ({
-    color: SEASON_PALETTE[i % SEASON_PALETTE.length], label: yr
-  }));
-}
-
-// ══════════════════════════════════════════════════════════════════
-// PRICES
-// ══════════════════════════════════════════════════════════════════
-function buildPriceCharts() {
-  const raw = allData.prices || [];
-  if (!raw.length) return;
-
-  const rows = filterRange(
-    [...raw].sort((a,b) => a.price_month.localeCompare(b.price_month)),
-    'price_month'
-  );
-  const labels = rows.map(r => r.price_month);
-
-  // KPIs
-  const last = rows[rows.length - 1];
-  const prev = rows[rows.length - 2];
-  if (last) {
-    setKPI('kpi-icip', last.i_cip, 'kpi-icip-chg', pct(last.i_cip, prev?.i_cip));
-    setKPI('kpi-col',  last.colombian_milds, 'kpi-col-chg', pct(last.colombian_milds, prev?.colombian_milds));
-    setKPI('kpi-braz', last.brazilian_naturals, 'kpi-braz-chg', pct(last.brazilian_naturals, prev?.brazilian_naturals));
-    setKPI('kpi-rob',  last.robustas, 'kpi-rob-chg', pct(last.robustas, prev?.robustas));
-    setKPI('kpi-ny',   last.new_york_ice, 'kpi-ny-chg', pct(last.new_york_ice, prev?.new_york_ice));
-    setKPI('kpi-lon',  last.london_ice, 'kpi-lon-chg', pct(last.london_ice, prev?.london_ice));
-
-    document.getElementById('lastUpdated').textContent =
-      'Last data: ' + last.price_month;
-  }
-
-  // I-CIP chart
-  makeLineChart('icipChart', labels, [{
-    label: 'I-CIP',
-    data: rows.map(r => r.i_cip),
-    borderColor: '#f0a500',
-    backgroundColor: 'rgba(240,165,0,0.06)',
-    fill: true,
-  }]);
-
-  // Arabica group
-  makeLineChart('arabicaChart', labels, [
-    { label: 'Colombian Milds',    data: rows.map(r => r.colombian_milds),    borderColor: '#f0a500' },
-    { label: 'Other Milds',        data: rows.map(r => r.other_milds),        borderColor: '#3b82f6' },
-    { label: 'Brazilian Naturals', data: rows.map(r => r.brazilian_naturals), borderColor: '#22c55e' },
-  ]);
-
-  // Robusta + futures
-  makeLineChart('robustaChart', labels, [
-    { label: 'Robustas',     data: rows.map(r => r.robustas),     borderColor: '#ef4444' },
-    { label: 'NY ICE',       data: rows.map(r => r.new_york_ice), borderColor: '#a78bfa', borderDash: [4,2] },
-    { label: 'London ICE',   data: rows.map(r => r.london_ice),   borderColor: '#06b6d4', borderDash: [4,2] },
-  ]);
-
-  // Differentials
-  const diffs = rows.map(r => ({
-    month: r.price_month,
-    col:   r.colombian_milds    !== null ? +(r.colombian_milds    - r.new_york_ice).toFixed(2) : null,
-    other: r.other_milds        !== null ? +(r.other_milds        - r.new_york_ice).toFixed(2) : null,
-    braz:  r.brazilian_naturals !== null ? +(r.brazilian_naturals - r.new_york_ice).toFixed(2) : null,
-    rob:   r.robustas           !== null ? +(r.robustas           - r.london_ice).toFixed(2)   : null,
-    spread:r.new_york_ice       !== null ? +(r.new_york_ice       - r.london_ice).toFixed(2)   : null,
-  }));
-
-  makeLineChart('diffTimeChart', labels, [
-    { label: 'Colombian − NY',  data: diffs.map(d => d.col),   borderColor: '#f0a500' },
-    { label: 'Other − NY',      data: diffs.map(d => d.other), borderColor: '#3b82f6' },
-    { label: 'Brazilian − NY',  data: diffs.map(d => d.braz),  borderColor: '#22c55e' },
-    { label: 'Robustas − LON',  data: diffs.map(d => d.rob),   borderColor: '#ef4444' },
-  ], {
-    plugins: { ...LINE_OPTS.plugins,
-      annotation: {},
-      tooltip: { ...TOOLTIP_DEFAULTS },
-    },
-    scales: {
-      ...LINE_OPTS.scales,
-      y: { ...LINE_OPTS.scales.y,
-        grid: { color: c => c.tick.value === 0 ? '#2a3040' : '#1e2530', drawBorder: false }
-      }
+    // Set range info
+    const sorted = [...DATA.prices].sort((a,b)=>a.price_month.localeCompare(b.price_month));
+    if(sorted.length){
+      document.getElementById('rangeInfo').textContent =
+        sorted[0].price_month+' – present';
     }
-  });
 
-  // Individual diff charts
-  [
-    ['diffColChart',   diffs.map(d => d.col),   '#f0a500'],
-    ['diffOtherChart', diffs.map(d => d.other),  '#3b82f6'],
-    ['diffBrazChart',  diffs.map(d => d.braz),   '#22c55e'],
-    ['diffRobChart',   diffs.map(d => d.rob),    '#ef4444'],
-  ].forEach(([id, data, color]) => {
-    makeLineChart(id, labels, [{ data, borderColor: color, fill: false }]);
-  });
+    rebuildAll();
 
-  // Diff seasonality
-  const diffRows = diffs.map(d => ({ month: d.month, col: d.col, other: d.other, braz: d.braz, rob: d.rob }));
-  const diffGrouped = {};
-  diffRows.forEach(r => {
-    const [yr, mo] = r.month.split('-');
-    if (!diffGrouped[yr]) diffGrouped[yr] = {};
-    // Average of all 4 diffs
-    const vals = [r.col, r.other, r.braz, r.rob].filter(v => v !== null);
-    diffGrouped[yr][parseInt(mo)] = vals.length ? +(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2) : null;
-  });
-  const diffSeasonDS = seasonDatasets(diffGrouped);
-  makeLineChart('diffSeasonChart', MONTHS, diffSeasonDS, {
-    plugins: { ...LINE_OPTS.plugins,
-      tooltip: { ...TOOLTIP_DEFAULTS,
-        callbacks: { title: items => MONTHS[items[0].dataIndex] }
-      }
-    },
-    scales: { x: { ...LINE_OPTS.scales.x }, y: { ...LINE_OPTS.scales.y } }
-  });
-
-  // Arabica/Robusta spread
-  makeLineChart('spreadTimeChart', labels, [{
-    label: 'NY − London',
-    data: diffs.map(d => d.spread),
-    borderColor: '#a78bfa',
-    backgroundColor: 'rgba(167,139,250,0.06)',
-    fill: true,
-  }]);
-
-  // Spread seasonality
-  const spreadGrouped = {};
-  diffs.forEach(d => {
-    const [yr, mo] = d.month.split('-');
-    if (!spreadGrouped[yr]) spreadGrouped[yr] = {};
-    spreadGrouped[yr][parseInt(mo)] = d.spread;
-  });
-  makeLineChart('spreadSeasonChart', MONTHS, seasonDatasets(spreadGrouped), {
-    plugins: { ...LINE_OPTS.plugins,
-      tooltip: { ...TOOLTIP_DEFAULTS,
-        callbacks: { title: items => MONTHS[items[0].dataIndex] }
-      }
-    }
-  });
-}
-
-// ══════════════════════════════════════════════════════════════════
-// EXPORTS
-// ══════════════════════════════════════════════════════════════════
-function buildExportCharts() {
-  const raw = allData.exports || [];
-  if (!raw.length) return;
-
-  const rows = filterRange(
-    [...raw].sort((a,b) => a.export_month.localeCompare(b.export_month)),
-    'export_month'
-  );
-  const labels = rows.map(r => r.export_month);
-
-  // KPIs
-  const last = rows[rows.length - 1];
-  const prev = rows[rows.length - 2];
-  if (last) {
-    setKPI('kpi-exp', last.total !== null ? (last.total / 1000).toFixed(1) + 'k' : '—',
-           'kpi-exp-chg', pct(last.total, prev?.total), 'MoM');
-    // fix KPI display for exports (already in thousands)
-    const expEl = document.getElementById('kpi-exp');
-    if (expEl && last.total) {
-      expEl.innerHTML = Math.round(last.total).toLocaleString() + '<span class="kpi-unit">k bags</span>';
-    }
-  }
-
-  // Stacked bar chart
-  makeBarChart('exportsBarChart', labels, [
-    { label: 'Colombian Milds',    data: rows.map(r => r.colombian_milds),    backgroundColor: 'rgba(240,165,0,0.8)' },
-    { label: 'Other Milds',        data: rows.map(r => r.other_milds),        backgroundColor: 'rgba(59,130,246,0.8)' },
-    { label: 'Brazilian Naturals', data: rows.map(r => r.brazilian_naturals), backgroundColor: 'rgba(34,197,94,0.8)' },
-    { label: 'Robustas',           data: rows.map(r => r.robustas),           backgroundColor: 'rgba(239,68,68,0.8)' },
-  ]);
-
-  // Total exports seasonality — group by coffee year (Oct–Sep)
-  function coffeeYear(month) {
-    const [yr, mo] = month.split('-').map(Number);
-    return mo >= 10 ? yr : yr - 1;
-  }
-  function coffeeMonth(month) {
-    // Oct=1, Nov=2, ... Sep=12
-    const mo = parseInt(month.split('-')[1]);
-    return mo >= 10 ? mo - 9 : mo + 3;
-  }
-  const CY_LABELS = ['Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep'];
-
-  const totalByCY = {};
-  rows.forEach(r => {
-    if (r.total === null) return;
-    const cy = 'CY' + coffeeYear(r.export_month);
-    const cm = coffeeMonth(r.export_month);
-    if (!totalByCY[cy]) totalByCY[cy] = {};
-    totalByCY[cy][cm] = r.total;
-  });
-  const totalSeasonDS = Object.keys(totalByCY).sort().map((cy, i) => ({
-    label: cy,
-    data: CY_LABELS.map((_, ci) => totalByCY[cy][ci + 1] ?? null),
-    borderColor: SEASON_PALETTE[i % SEASON_PALETTE.length],
-    borderWidth: 1.5, tension: 0.3, pointRadius: 0, pointHoverRadius: 4,
-    fill: false, spanGaps: true,
-  }));
-  makeLineChart('expTotalSeasonChart', CY_LABELS, totalSeasonDS, {
-    plugins: { ...LINE_OPTS.plugins,
-      tooltip: { ...TOOLTIP_DEFAULTS,
-        callbacks: { title: items => CY_LABELS[items[0].dataIndex] }
-      }
-    }
-  });
-
-  // Arabica vs Robusta seasonality by calendar year
-  const arabicaByYr = {}, robustaByYr = {};
-  rows.forEach(r => {
-    const [yr, mo] = r.export_month.split('-');
-    if (!arabicaByYr[yr]) arabicaByYr[yr] = {};
-    if (!robustaByYr[yr]) robustaByYr[yr] = {};
-    if (r.arabicas  !== null) arabicaByYr[yr][parseInt(mo)] = r.arabicas;
-    if (r.robustas !== null) robustaByYr[yr][parseInt(mo)] = r.robustas;
-  });
-  const years = [...new Set([...Object.keys(arabicaByYr), ...Object.keys(robustaByYr)])].sort();
-  const expGroupDS = years.flatMap((yr, i) => [
-    {
-      label: yr + ' Arabicas',
-      data: MONTHS.map((_, mi) => arabicaByYr[yr]?.[mi+1] ?? null),
-      borderColor: SEASON_PALETTE[i % SEASON_PALETTE.length],
-      borderDash: [],
-      borderWidth: 1.5, tension: 0.3, pointRadius: 0, fill: false, spanGaps: true,
-    },
-    {
-      label: yr + ' Robustas',
-      data: MONTHS.map((_, mi) => robustaByYr[yr]?.[mi+1] ?? null),
-      borderColor: SEASON_PALETTE[i % SEASON_PALETTE.length],
-      borderDash: [4, 2],
-      borderWidth: 1.5, tension: 0.3, pointRadius: 0, fill: false, spanGaps: true,
-    },
-  ]);
-  makeLineChart('expGroupSeasonChart', MONTHS, expGroupDS, {
-    plugins: { ...LINE_OPTS.plugins,
-      tooltip: { ...TOOLTIP_DEFAULTS,
-        callbacks: { title: items => MONTHS[items[0].dataIndex] }
-      }
-    }
-  });
-}
-
-// ══════════════════════════════════════════════════════════════════
-// CERTIFIED STOCKS
-// ══════════════════════════════════════════════════════════════════
-function buildStockCharts() {
-  const raw = allData.stocks || [];
-  if (!raw.length) return;
-
-  const rows = filterRange(
-    [...raw].sort((a,b) => a.stock_month.localeCompare(b.stock_month)),
-    'stock_month'
-  );
-  // Deduplicate: keep latest report per stock_month
-  const deduped = {};
-  rows.forEach(r => { deduped[r.stock_month] = r; });
-  const dedupRows = Object.values(deduped).sort((a,b) => a.stock_month.localeCompare(b.stock_month));
-
-  const labels = dedupRows.map(r => r.stock_month);
-
-  // KPIs
-  const last = dedupRows[dedupRows.length - 1];
-  const prev = dedupRows[dedupRows.length - 2];
-  if (last) {
-    setKPI('kpi-ny-stk', last.new_york_bags_millions,
-           'kpi-ny-stk-chg', pct(last.new_york_bags_millions, prev?.new_york_bags_millions));
-    setKPI('kpi-lon-stk', last.london_bags_millions,
-           'kpi-lon-stk-chg', pct(last.london_bags_millions, prev?.london_bags_millions));
-  }
-
-  // Stocks over time
-  makeLineChart('stocksTimeChart', labels, [
-    {
-      label: 'New York',
-      data: dedupRows.map(r => r.new_york_bags_millions),
-      borderColor: '#f0a500',
-      backgroundColor: 'rgba(240,165,0,0.05)',
-      fill: true,
-    },
-    {
-      label: 'London',
-      data: dedupRows.map(r => r.london_bags_millions),
-      borderColor: '#3b82f6',
-      backgroundColor: 'rgba(59,130,246,0.05)',
-      fill: true,
-    },
-  ]);
-
-  // NY seasonality
-  const nyGrouped = groupByYearMonth(dedupRows, 'stock_month', 'new_york_bags_millions');
-  makeLineChart('nyStockSeasonChart', MONTHS, seasonDatasets(nyGrouped), {
-    plugins: { ...LINE_OPTS.plugins,
-      tooltip: { ...TOOLTIP_DEFAULTS,
-        callbacks: { title: items => MONTHS[items[0].dataIndex] }
-      }
-    }
-  });
-
-  // London seasonality
-  const lonGrouped = groupByYearMonth(dedupRows, 'stock_month', 'london_bags_millions');
-  makeLineChart('lonStockSeasonChart', MONTHS, seasonDatasets(lonGrouped), {
-    plugins: { ...LINE_OPTS.plugins,
-      tooltip: { ...TOOLTIP_DEFAULTS,
-        callbacks: { title: items => MONTHS[items[0].dataIndex] }
-      }
-    }
-  });
-}
-
-// ══════════════════════════════════════════════════════════════════
-// RANGE CONTROL
-// ══════════════════════════════════════════════════════════════════
-function setRange(months) {
-  rangeMonths = months;
-  document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
-  const labels = { 0: 'ALL', 12: '1Y', 36: '3Y', 60: '5Y' };
-  document.querySelectorAll('.range-btn').forEach(b => {
-    if (b.textContent === (labels[months] || months + 'M')) b.classList.add('active');
-  });
-  if (months === 0) {
-    const prices = allData.prices || [];
-    const sorted = [...prices].sort((a,b) => a.price_month.localeCompare(b.price_month));
-    if (sorted.length) {
-      document.getElementById('rangeLabel').textContent =
-        sorted[0].price_month + ' – present';
-    }
-  } else {
-    document.getElementById('rangeLabel').textContent = `Last ${months} months`;
-  }
-  buildPriceCharts();
-  buildExportCharts();
-  buildStockCharts();
-}
-
-// ══════════════════════════════════════════════════════════════════
-// SCROLL TO SECTION
-// ══════════════════════════════════════════════════════════════════
-function scrollTo(id) {
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
-  const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-// ══════════════════════════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════════════════════════
-async function init() {
-  document.getElementById('lastUpdated').textContent = 'Loading data...';
-
-  // Load each CSV independently so one failure doesn't block others
-  async function safeLoad(url, name) {
-    try {
-      const rows = await parseCSV(url);
-      console.log(`✅ ${name}: ${rows.length} rows`);
-      return rows;
-    } catch(e) {
-      console.error(`❌ ${name} failed:`, e);
-      return [];
-    }
-  }
-
-  const [prices, exports_, stocks] = await Promise.all([
-    safeLoad(URLS.prices,  'prices'),
-    safeLoad(URLS.exports, 'exports'),
-    safeLoad(URLS.stocks,  'stocks'),
-  ]);
-
-  allData = { prices, exports: exports_, stocks };
-
-  const totalRows = prices.length + exports_.length + stocks.length;
-  if (totalRows === 0) {
-    document.getElementById('lastUpdated').textContent = '⚠ No data — check console';
-    // Show helpful error in page
-    const main = document.querySelector('.main');
-    const errDiv = document.createElement('div');
-    errDiv.style.cssText = 'background:#1a0a0a;border:1px solid #ef4444;padding:20px;margin-bottom:24px;font-family:IBM Plex Mono,monospace;font-size:12px;color:#ef4444;';
-    errDiv.innerHTML = `
-      <div style="font-weight:600;margin-bottom:12px;">⚠ DATA LOAD FAILED</div>
-      <div style="color:#8892a4;line-height:1.8;">
-        Attempted to load:<br>
-        &nbsp;&nbsp;${URLS.prices}<br>
-        &nbsp;&nbsp;${URLS.exports}<br>
-        &nbsp;&nbsp;${URLS.stocks}<br><br>
-        Common fixes:<br>
-        &nbsp;&nbsp;1. Ensure repo is public (Settings → Change visibility)<br>
-        &nbsp;&nbsp;2. Verify CSV files exist at data/csv/ in your repo<br>
-        &nbsp;&nbsp;3. Check browser console (F12) for exact error<br>
-        &nbsp;&nbsp;4. Try opening a CSV URL directly in your browser
-      </div>`;
-    main.insertBefore(errDiv, main.firstChild);
-    return;
-  }
-
-  buildPriceCharts();
-  buildExportCharts();
-  buildStockCharts();
-
-  // Update range label
-  const sorted = [...prices].sort((a,b) => a.price_month.localeCompare(b.price_month));
-  if (sorted.length) {
-    document.getElementById('rangeLabel').textContent =
-      sorted[0].price_month + ' – present';
-    document.getElementById('lastUpdated').textContent =
-      'Last data: ' + sorted[sorted.length-1].price_month;
+  } catch(e){
+    console.error('Load failed:',e);
+    document.getElementById('updEl').textContent='⚠ Load failed — check console';
   }
 }
 
