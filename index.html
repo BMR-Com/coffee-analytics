@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Coffee Market Analytics</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -88,7 +89,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
 .ico-title{font-size:9px;font-weight:600;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;gap:6px}
 .ico-title::before{content:'';width:3px;height:9px;background:var(--accent);flex-shrink:0}
 .ico-period{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent)}
-.ico-body{font-size:11px;color:var(--text2);line-height:1.7;white-space:pre-wrap}
+.ico-body{font-size:11px;color:var(--text2);line-height:1.8;white-space:pre-wrap;max-height:600px;overflow-y:auto;padding-right:8px}
 .ico-loading{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text3);font-style:italic}
 .ico-btn{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:3px 10px;border:1px solid var(--border2);background:none;color:var(--text2);cursor:pointer}
 .ico-btn:hover{color:var(--accent);border-color:var(--accent)}
@@ -323,6 +324,50 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
 </div>
 
 <script>
+// ─── PDF.JS CONFIG ───────────────────────────────────────────────
+if(typeof pdfjsLib !== 'undefined'){
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
+// Extract text from a PDF URL using pdf.js
+async function extractTextFromPDF(url, statusEl){
+  if(typeof pdfjsLib === 'undefined') throw new Error('pdf.js not loaded');
+
+  if(statusEl) statusEl.textContent = '⟳ Downloading PDF...';
+  const loadingTask = pdfjsLib.getDocument({
+    url: url,
+    // ICO PDFs are on a different domain — need CORS
+    // Use a CORS proxy as fallback
+    withCredentials: false,
+  });
+
+  let pdf;
+  try {
+    pdf = await loadingTask.promise;
+  } catch(e) {
+    // Direct fetch failed (CORS) — try via allOrigins proxy
+    if(statusEl) statusEl.textContent = '⟳ Using CORS proxy for PDF...';
+    const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+    const proxyTask = pdfjsLib.getDocument(proxyUrl);
+    pdf = await proxyTask.promise;
+  }
+
+  if(statusEl) statusEl.textContent = '⟳ Extracting text from ' + pdf.numPages + ' pages...';
+
+  let fullText = '';
+  // Extract text from all pages (or first 12 — enough for analysis)
+  const maxPages = Math.min(pdf.numPages, 12);
+  for(let i = 1; i <= maxPages; i++){
+    const page     = await pdf.getPage(i);
+    const content  = await page.getTextContent();
+    const pageText = content.items.map(item => item.str).join(' ');
+    fullText += pageText + '\n';
+    if(statusEl) statusEl.textContent = '⟳ Extracting text... page ' + i + '/' + maxPages;
+  }
+  return fullText;
+}
+
 // ─── CONFIG ───────────────────────────────────────────────────────
 const BASE = 'https://raw.githubusercontent.com/BMR-Com/coffee-analytics/main/data/csv/';
 const BASE_RAW = 'https://raw.githubusercontent.com/BMR-Com/coffee-analytics/main/data/csv/';
@@ -846,19 +891,41 @@ async function loadICOSummary(force){
     if(!latestPeriod){ bodyEl.textContent = '❌ Could not determine latest report period'; return; }
     if(periodEl) periodEl.textContent = latestPeriod;
 
-    // ── Step 2: Fetch extracted PDF text from GitHub ──────────────
-    bodyEl.textContent = '⟳ Fetching PDF text for ' + latestPeriod + '...';
+    // ── Step 2: Try to get PDF text ──────────────────────────────
+    // Method A: Pre-extracted text file (if pipeline has run with updated parse_reports.py)
+    // Method B: Read PDF directly using pdf.js
+    bodyEl.textContent = '⟳ Loading PDF for ' + latestPeriod + '...';
     let pdfText = '';
+
+    // Method A: Try pre-extracted text file first
     const txtUrl = BASE.replace('/csv/', '/report-text/') + latestPeriod + '.txt';
     try {
       const txtResp = await fetch(txtUrl);
       if(txtResp.ok){
         pdfText = await txtResp.text();
-        console.log('PDF text loaded: ' + pdfText.length + ' chars');
-      } else {
-        console.warn('PDF text not found at: ' + txtUrl);
+        console.log('✅ Pre-extracted text loaded: ' + pdfText.length + ' chars');
       }
-    } catch(e){ console.warn('PDF text fetch failed:', e); }
+    } catch(e){ console.warn('Text file fetch failed:', e); }
+
+    // Method B: If no text file, read PDF directly with pdf.js
+    if(!pdfText || pdfText.length < 500){
+      bodyEl.textContent = '⟳ Reading PDF directly for ' + latestPeriod + '...';
+      // Build PDF URL using the same ICO URL pattern as the pipeline
+      const yr  = parseInt(latestPeriod.slice(0,4));
+      const mo  = parseInt(latestPeriod.slice(5,7));
+      const cy  = mo < 10 ? yr-1 : yr;
+      const cyStr = cy + '-' + String(cy+1).slice(2);
+      const pdfUrl = 'https://www.ico.org/documents/cy'+cyStr+'/cmr-'+String(mo).padStart(2,'0')+String(yr).slice(2)+'-e.pdf';
+      console.log('Trying PDF URL:', pdfUrl);
+
+      try {
+        pdfText = await extractTextFromPDF(pdfUrl, bodyEl);
+        console.log('✅ PDF text extracted: ' + pdfText.length + ' chars');
+      } catch(e){
+        console.warn('PDF.js extraction failed:', e.message);
+        pdfText = '';
+      }
+    }
 
     // ── Step 3: Build prompt ──────────────────────────────────────
     let prompt = '';
@@ -868,29 +935,61 @@ async function loadICOSummary(force){
       // Trim to ~12000 chars to stay within token limits (Llama context is large)
       const trimmed = pdfText.length > 12000 ? pdfText.slice(0, 12000) + '\n...[truncated]' : pdfText;
       bodyEl.textContent = '⟳ Sending PDF text to Groq (' + Math.round(pdfText.length/1000) + 'k chars)...';
-      prompt = `You are a senior coffee commodity analyst. Below is the full text extracted from the ICO Monthly Coffee Market Report for ${latestPeriod}.
+      prompt = `You are a senior coffee commodity analyst writing a detailed market report. Below is the full text extracted from the ICO Monthly Coffee Market Report for ${latestPeriod}.
 
-Write a comprehensive 2-page executive summary covering ALL of the following sections:
+Write a comprehensive analysis of at least 1,000 words structured into the following 6 sections. Each section must contain exactly 4 substantial paragraphs. Be specific with every number, percentage, and figure from the report. Write in professional commodity analyst prose — no bullet points, no lists.
+
+---
 
 **1. PRICE MOVEMENTS**
-Detail all price changes for I-CIP, Colombian Milds, Other Milds, Brazilian Naturals, Robustas, NY ICE, and London ICE. Include exact figures and % changes.
 
-**2. PRICE DIFFERENTIALS**
-Analyse the differentials between physical prices and futures (Colombian vs NY, Other vs NY, Brazilian vs NY, Robustas vs London) and the Arabica-Robusta arbitrage.
+Write 4 paragraphs covering:
+- Para 1: I-CIP composite price — the monthly average, MoM change, context within recent trend, and what drove the move.
+- Para 2: Arabica group prices — Colombian Milds, Other Milds, and Brazilian Naturals in detail with exact figures and % changes.
+- Para 3: Robustas price — level, direction, MoM change, and comparison to Arabica groups.
+- Para 4: Futures markets — NY ICE and London ICE price levels, changes, and their relationship to physical prices.
+
+**2. PRICE DIFFERENTIALS & ARBITRAGE**
+
+Write 4 paragraphs covering:
+- Para 1: Colombian Milds differential vs NY ICE — current level, direction, and what it signals about physical market tightness.
+- Para 2: Other Milds and Brazilian Naturals differentials vs NY ICE.
+- Para 3: Robustas differential vs London ICE — current premium/discount and implications.
+- Para 4: Arabica-Robusta arbitrage (NY ICE minus London ICE) — current level, MoM change, historical context, and what it means for blending economics.
 
 **3. SUPPLY & DEMAND BALANCE**
-Extract and present the World Supply/Demand Balance table figures if present (production, consumption, balance by year).
+
+Write 4 paragraphs covering:
+- Para 1: Global coffee production estimate for the current coffee year — total, Arabica, and Robusta breakdown with key producing countries.
+- Para 2: Global consumption estimate — total, exporting vs importing countries breakdown, key consuming regions.
+- Para 3: Supply/demand balance — surplus or deficit, how it compares to prior years, and stock implications.
+- Para 4: Key supply-side developments — weather, crop cycle, any revisions to production estimates mentioned in the report.
 
 **4. EXPORT PERFORMANCE**
-Detail total exports, breakdown by Arabica groups and Robustas, year-on-year comparisons, and key origin highlights.
+
+Write 4 paragraphs covering:
+- Para 1: Total green bean exports — volume, YoY comparison, and overall trend.
+- Para 2: Arabica exports — total Arabicas, Colombian Milds, Other Milds, and Brazilian Naturals with YoY comparisons and key origins driving changes.
+- Para 3: Robusta exports — volume, YoY change, key origins (Vietnam, Indonesia, Uganda, Brazil) and what drove the trend.
+- Para 4: All-forms exports (including soluble and roasted) and cumulative coffee year performance to date.
 
 **5. CERTIFIED STOCKS**
-Report NY and London certified stock levels and month-on-month changes.
 
-**6. MARKET DRIVERS & OUTLOOK**
-Summarise the key factors ICO identified as driving the market. Include any supply concerns, weather events, policy changes, or demand shifts mentioned.
+Write 4 paragraphs covering:
+- Para 1: New York certified Arabica stocks — current level in million bags, MoM change, and trend direction.
+- Para 2: London certified Robusta stocks — current level, MoM change, and trend direction.
+- Para 3: Combined stocks picture — total certified stocks, what level they are at historically, and implications for price.
+- Para 4: Relationship between certified stock movements and recent price action.
 
-Use professional commodity analyst language. Be specific with every number mentioned in the report. Use section headers in bold.
+**6. MARKET OUTLOOK — BULLISH OR BEARISH?**
+
+Write 4 paragraphs covering:
+- Para 1: Bullish factors — list and explain all factors that could push prices higher based on the report data and market signals.
+- Para 2: Bearish factors — list and explain all factors that could push prices lower.
+- Para 3: Balance of risks — weigh the bullish vs bearish factors and provide a reasoned assessment.
+- Para 4: VERDICT — State clearly whether the near-term outlook is BULLISH, BEARISH, or NEUTRAL, with a one-paragraph justification grounded in the specific data from this report. Include a price directional view for the I-CIP.
+
+---
 
 --- ICO REPORT TEXT ---
 ${trimmed}
@@ -944,7 +1043,7 @@ CERTIFIED STOCKS — ${KL&&KL.stock_month||'—'}:
   New York: ${fmt(KL&&KL.new_york_bags_millions)} million bags (MoM: ${pct(KL&&KL.new_york_bags_millions,KP&&KP.new_york_bags_millions)})
   London:   ${fmt(KL&&KL.london_bags_millions)} million bags (MoM: ${pct(KL&&KL.london_bags_millions,KP&&KP.london_bags_millions)})
 
-Write as a professional 2-page report with bold section headers. Be specific with all numbers.`;
+Write a comprehensive analysis of at least 800 words structured into 6 sections: 1) Price Movements, 2) Differentials and Arbitrage, 3) Supply/Demand Balance (note: table data not available in this mode), 4) Export Performance, 5) Certified Stocks, 6) Market Outlook. Each section must have 3-4 substantial paragraphs in professional commodity analyst prose — no bullet points. For the Market Outlook section, give a clear BULLISH, BEARISH, or NEUTRAL verdict with a specific justification based on the data.`;
     }
 
     // ── Step 4: Send to Groq ──────────────────────────────────────
@@ -960,7 +1059,7 @@ Write as a professional 2-page report with bold section headers. Be specific wit
         body: JSON.stringify({
           model: 'llama-3.3-70b-versatile',
           messages: [{ role: 'user', content: prompt }],
-          max_tokens: 1800,
+          max_tokens: 2500,
           temperature: 0.2
         })
       });
