@@ -150,22 +150,22 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
     <!-- GEMINI PDF SUMMARY -->
     <div class="ico-wrap">
       <div class="ico-header">
-        <div class="ico-title">ICO Report PDF Summary (Gemini AI)</div>
+        <div class="ico-title">ICO Report Analysis (Groq / Llama 3.3 70B)</div>
         <div style="display:flex;align-items:center;gap:10px">
           <span class="ico-period" id="icoReportPeriod">—</span>
           <button class="ico-btn" id="icoRefreshBtn" onclick="loadICOSummary(true)" style="display:none">↻ Refresh</button>
         </div>
       </div>
       <div id="icoKeyPrompt" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 0">
-        <span style="font-size:9px;color:var(--text3);font-family:'IBM Plex Mono',monospace;white-space:nowrap">GEMINI KEY</span>
+        <span style="font-size:9px;color:var(--text3);font-family:'IBM Plex Mono',monospace;white-space:nowrap">GROQ KEY</span>
         <input id="geminiKeyInput" type="password"
-          placeholder="Paste Google AI Studio key → get 2-page PDF narrative + balance sheet"
+          placeholder="Paste Groq API key (gsk_...) → get 2-page PDF narrative + balance sheet"
           style="flex:1;min-width:260px;background:var(--bg);border:1px solid var(--border2);color:var(--text);
                  font-family:'IBM Plex Mono',monospace;font-size:11px;padding:5px 10px;outline:none"
           onkeydown="if(event.key==='Enter')loadICOSummary(false)">
         <button class="ico-btn" onclick="loadICOSummary(false)">Generate PDF Summary →</button>
-        <a href="https://aistudio.google.com/app/apikey" target="_blank"
-          style="font-size:9px;color:var(--text3);text-decoration:none;white-space:nowrap">Get free key ↗</a>
+        <a href="https://console.groq.com" target="_blank"
+          style="font-size:9px;color:var(--text3);text-decoration:none;white-space:nowrap">Free key at console.groq.com ↗</a>
       </div>
       <div id="icoSummaryBody" class="ico-body" style="display:none;margin-top:8px"></div>
     </div>
@@ -784,7 +784,7 @@ function buildSummary(){
   }
 
   // Show Gemini key prompt (don't auto-call)
-  const savedKey = sessionStorage.getItem('geminiKey');
+  const savedKey = sessionStorage.getItem('groqKey');
   if(savedKey){
     const inp = document.getElementById('geminiKeyInput');
     if(inp) inp.value = savedKey;
@@ -809,7 +809,7 @@ async function loadICOSummary(force){
   const refreshEl = document.getElementById('icoRefreshBtn');
 
   // Get key — from input or sessionStorage (so refresh doesn't re-ask)
-  let apiKey = sessionStorage.getItem('geminiKey') || '';
+  let apiKey = sessionStorage.getItem('groqKey') || '';
   const inputEl = document.getElementById('geminiKeyInput');
   if(inputEl && inputEl.value.trim()) apiKey = inputEl.value.trim();
 
@@ -820,13 +820,13 @@ async function loadICOSummary(force){
   }
 
   // Store key for this session only (never persisted to disk)
-  sessionStorage.setItem('geminiKey', apiKey);
+  sessionStorage.setItem('groqKey', apiKey);
 
   // Hide prompt, show loading
   promptEl.style.display  = 'none';
   bodyEl.style.display    = 'block';
   bodyEl.className        = 'ico-loading';
-  bodyEl.textContent      = '⟳ Generating 2-page PDF analysis with Gemini...  (~5 seconds)';
+  bodyEl.textContent      = '⟳ Connecting to Groq / Llama 3.3 70B...';
   if(refreshEl) refreshEl.style.display = 'inline-block';
 
   try {
@@ -931,36 +931,48 @@ Write in professional commodity analyst style. Be specific with every number. Us
 DATA:
 ${context}`;
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-    const resp = await fetch(geminiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents:[{ parts:[{ text: prompt }] }],
-        generationConfig:{ maxOutputTokens:1500, temperature:0.2 }
-      })
-    });
+    // Call Groq API — free tier, no billing needed
+    // Model: llama-3.3-70b-versatile
+    bodyEl.textContent = '⟳ Generating analysis with Groq / Llama 3.3 70B...';
+    let resp;
+    try {
+      resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + apiKey
+        },
+        body: JSON.stringify({
+          model: 'llama-3.3-70b-versatile',
+          messages: [{ role: 'user', content: prompt }],
+          max_tokens: 1500,
+          temperature: 0.2
+        })
+      });
+    } catch(e) {
+      bodyEl.textContent = '❌ Network error: ' + e.message;
+      return;
+    }
 
     if(!resp.ok){
       const err = await resp.json().catch(()=>({}));
-      const msg = err.error&&err.error.message || `HTTP ${resp.status}`;
-      bodyEl.textContent = `❌ Gemini API error: ${msg}`;
-      if(msg.includes('API_KEY') || msg.includes('key')) {
-        // Bad key — show prompt again
-        sessionStorage.removeItem('geminiKey');
+      const msg = err.error&&err.error.message || 'HTTP '+resp.status;
+      bodyEl.textContent = '❌ Groq API error: ' + msg;
+      if(resp.status===401||resp.status===403){
+        sessionStorage.removeItem('groqKey');
         promptEl.style.display = 'flex';
-        if(inputEl) { inputEl.value=''; inputEl.focus(); }
+        const inp = document.getElementById('geminiKeyInput');
+        if(inp){ inp.value=''; inp.focus(); }
       }
       return;
     }
 
     const data = await resp.json();
-    const text = data.candidates &&
-                 data.candidates[0] &&
-                 data.candidates[0].content &&
-                 data.candidates[0].content.parts &&
-                 data.candidates[0].content.parts[0] &&
-                 data.candidates[0].content.parts[0].text;
+    // Groq uses OpenAI-compatible response format
+    const text = data.choices &&
+                 data.choices[0] &&
+                 data.choices[0].message &&
+                 data.choices[0].message.content;
 
     if(text){
       bodyEl.className   = 'ico-body';
