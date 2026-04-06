@@ -33,8 +33,9 @@ urllib3.disable_warnings()
 # ── Paths ─────────────────────────────────────────────────────────
 ROOT       = Path(__file__).parent.parent          # repo root
 DATA_DIR   = ROOT / "data"                          # data/
-CSV_DIR    = DATA_DIR / "csv"                       # data/csv/   ← ALL CSVs go here
-PDFS_DIR   = ROOT / "pdfs"                          # pdfs/
+CSV_DIR         = DATA_DIR / "csv"            # data/csv/   ← ALL CSVs go here
+REPORT_TEXT_DIR = DATA_DIR / "report-text"   # data/report-text/ ← PDF text for AI summary
+PDFS_DIR        = ROOT / "pdfs"                          # pdfs/
 INDEX_PATH = DATA_DIR / "index.json"
 LOG_PATH   = DATA_DIR / "pipeline-log.json"
 
@@ -45,6 +46,7 @@ CSV_STOCKS  = CSV_DIR / "certified_stocks.csv"
 # Ensure directories exist
 CSV_DIR.mkdir(parents=True, exist_ok=True)
 PDFS_DIR.mkdir(parents=True, exist_ok=True)
+REPORT_TEXT_DIR.mkdir(parents=True, exist_ok=True)
 
 # Export categories in order
 CATEGORIES = ["total", "arabicas", "colombian_milds",
@@ -531,6 +533,15 @@ def process_period(period: str, year: int, month: int, skip_existing: bool = Fal
     if not pages_text:
         log.warning("  No text extracted"); return False
     full_text = "\n".join(pages_text)
+
+    # Save full PDF text for dashboard AI summary
+    txt_path = REPORT_TEXT_DIR / f"{period}.txt"
+    if not txt_path.exists():
+        try:
+            txt_path.write_text(full_text, encoding="utf-8")
+            log.info(f"  Saved report text ({len(full_text):,} chars)")
+        except Exception as e:
+            log.warning(f"  Could not save report text: {e}")
 
     # Extract tables
     price_rows  = extract_prices(pages_text, period, pdf_path)
