@@ -582,22 +582,24 @@ function buildExports(){
 function setRange(mo, btn){
   rangeMo = mo;
   document.querySelectorAll('.rbtn').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
+  if(btn) btn.classList.add('on');
 
-  // Update info label
+  // Update info label (never return early)
   const info = document.getElementById('rangeInfo');
-  if(!info) return;
-  if(!mo){
-    const sorted = [...DATA.prices].sort((a,b)=>a.price_month.localeCompare(b.price_month));
-    info.textContent = sorted.length ? sorted[0].price_month+' – present' : '';
-  } else {
-    const nYears = mo===12?1:mo===36?3:mo===60?5:0;
-    info.textContent = 'Last '+mo+' months · '+nYears+' season lines';
+  if(info){
+    if(!mo){
+      const sorted = [...DATA.prices].sort((a,b)=>a.price_month.localeCompare(b.price_month));
+      info.textContent = sorted.length ? sorted[0].price_month+' – present' : '';
+    } else {
+      const nYears = mo===12?1:mo===36?3:mo===60?5:0;
+      info.textContent = 'Last '+mo+' months | '+nYears+' season lines';
+    }
   }
   rebuildAll();
 }
 
 function rebuildAll(){
+  if(!DATA.prices.length) return;
   buildPrices();
   buildDiffs();
   buildSeason();
@@ -613,8 +615,15 @@ function showTab(name, btn){
   document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
   document.getElementById('tab-'+name).classList.add('on');
   btn.classList.add('on');
-  // Force chart resize after tab switch
-  setTimeout(()=>{ Object.values(charts).forEach(c=>{ try{c.resize()}catch(e){} }); },50);
+  // Rebuild charts for the newly visible tab
+  // (Charts rendered while hidden have 0px size)
+  setTimeout(()=>{
+    if(name==='prices')  { buildPrices(); }
+    if(name==='diffs')   { buildDiffs(); }
+    if(name==='season')  { buildSeason(); }
+    if(name==='stocks')  { buildStocks(); }
+    if(name==='exports') { buildExports(); }
+  }, 30);
 }
 
 // ═══════════════════════════════════════════════
@@ -651,7 +660,7 @@ async function init(){
         sorted[0].price_month+' – present';
     }
 
-    rebuildAll();
+    buildPrices(); // Only build visible tab on load
 
   } catch(e){
     console.error('Load failed:',e);
