@@ -67,6 +67,44 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 @media(max-width:900px){.kpi-bar{grid-template-columns:repeat(3,1fr)}.c2{grid-template-columns:1fr}}
+
+/* SUMMARY SECTION */
+.summary-wrap{border-bottom:1px solid var(--border);background:var(--bg2)}
+.summary-inner{max-width:1400px;margin:0 auto;padding:16px 20px}
+.summary-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:1px;background:var(--border);margin-bottom:14px}
+.sm-card{background:var(--bg2);padding:14px 16px}
+.sm-title{font-size:9px;font-weight:600;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.sm-title::before{content:'';width:3px;height:9px;background:var(--accent);flex-shrink:0}
+.sm-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(29,37,53,.5)}
+.sm-row:last-child{border-bottom:none}
+.sm-lbl{font-size:10px;color:var(--text2)}
+.sm-vals{display:flex;gap:12px;align-items:center}
+.sm-val{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text)}
+.sm-yoy{font-family:'IBM Plex Mono',monospace;font-size:9px}
+.sm-10y{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text3)}
+/* ICO REPORT SUMMARY */
+.ico-wrap{background:var(--bg3);border:1px solid var(--border);padding:14px 16px;margin-bottom:0}
+.ico-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.ico-title{font-size:9px;font-weight:600;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;gap:6px}
+.ico-title::before{content:'';width:3px;height:9px;background:var(--accent);flex-shrink:0}
+.ico-period{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent)}
+.ico-body{font-size:11px;color:var(--text2);line-height:1.7;white-space:pre-wrap}
+.ico-loading{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text3);font-style:italic}
+.ico-btn{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:3px 10px;border:1px solid var(--border2);background:none;color:var(--text2);cursor:pointer}
+.ico-btn:hover{color:var(--accent);border-color:var(--accent)}
+@media(max-width:900px){.summary-grid{grid-template-columns:1fr 1fr}}
+
+/* KEY INPUT */
+#geminiKeyInput:focus{border-color:var(--accent);outline:none}
+#icoKeyPrompt{flex-wrap:wrap;gap:8px}
+
+/* NARRATIVE */
+.narr-bullet{display:flex;gap:8px;padding:2px 0}
+.narr-dot{color:var(--accent);font-weight:700;flex-shrink:0;margin-top:1px}
+.narr-pos{color:var(--green)}
+.narr-neg{color:var(--red)}
+.narr-hl{color:var(--text);font-weight:500}
+#geminiKeyInput:focus{border-color:var(--accent)}
 </style>
 </head>
 <body>
@@ -74,6 +112,65 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
 <div class="hdr">
   <div class="logo">☕ COFFEE<span>/ANALYTICS</span></div>
   <div class="upd"><span id="updEl">Loading...</span><div class="dot"></div></div>
+</div>
+
+
+<!-- SUMMARY SECTION -->
+<div class="summary-wrap" id="summaryWrap">
+  <div class="summary-inner">
+
+    <!-- AUTO NARRATIVE (from CSV data) -->
+    <div style="margin-bottom:14px">
+      <div class="sm-title" style="margin-bottom:10px">Market Snapshot — Latest Available Data</div>
+      <div id="autoNarrative" style="font-size:11px;color:var(--text2);line-height:1.9">
+        <span style="color:var(--text3);font-family:'IBM Plex Mono',monospace;font-size:10px">Computing...</span>
+      </div>
+    </div>
+
+    <!-- DATA GRID: 4 summary cards -->
+    <div class="summary-grid" style="margin-bottom:14px">
+      <div class="sm-card">
+        <div class="sm-title">Prices (US cents/lb)</div>
+        <div id="smPrices"><div class="sm-row"><span class="sm-lbl">Loading...</span></div></div>
+      </div>
+      <div class="sm-card">
+        <div class="sm-title">Differentials &amp; Spread</div>
+        <div id="smDiffs"><div class="sm-row"><span class="sm-lbl">Loading...</span></div></div>
+      </div>
+      <div class="sm-card">
+        <div class="sm-title">Exports (thousand bags)</div>
+        <div id="smExports"><div class="sm-row"><span class="sm-lbl">Loading...</span></div></div>
+      </div>
+      <div class="sm-card">
+        <div class="sm-title">Certified Stocks (million bags)</div>
+        <div id="smStocks"><div class="sm-row"><span class="sm-lbl">Loading...</span></div></div>
+      </div>
+    </div>
+
+    <!-- GEMINI PDF SUMMARY -->
+    <div class="ico-wrap">
+      <div class="ico-header">
+        <div class="ico-title">ICO Report PDF Summary (Gemini AI)</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="ico-period" id="icoReportPeriod">—</span>
+          <button class="ico-btn" id="icoRefreshBtn" onclick="loadICOSummary(true)" style="display:none">↻ Refresh</button>
+        </div>
+      </div>
+      <div id="icoKeyPrompt" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 0">
+        <span style="font-size:9px;color:var(--text3);font-family:'IBM Plex Mono',monospace;white-space:nowrap">GEMINI KEY</span>
+        <input id="geminiKeyInput" type="password"
+          placeholder="Paste Google AI Studio key → get 2-page PDF narrative + balance sheet"
+          style="flex:1;min-width:260px;background:var(--bg);border:1px solid var(--border2);color:var(--text);
+                 font-family:'IBM Plex Mono',monospace;font-size:11px;padding:5px 10px;outline:none"
+          onkeydown="if(event.key==='Enter')loadICOSummary(false)">
+        <button class="ico-btn" onclick="loadICOSummary(false)">Generate PDF Summary →</button>
+        <a href="https://aistudio.google.com/app/apikey" target="_blank"
+          style="font-size:9px;color:var(--text3);text-decoration:none;white-space:nowrap">Get free key ↗</a>
+      </div>
+      <div id="icoSummaryBody" class="ico-body" style="display:none;margin-top:8px"></div>
+    </div>
+
+  </div>
 </div>
 
 <div class="kpi-bar" id="kpiBar">
@@ -197,11 +294,38 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tex
     <div class="cc"><div class="ct">Brazilian Naturals Seasonality</div><div class="cs">Thousand bags by month</div><canvas id="XS_bra" height="120"></canvas><div class="leg" id="XL_bra"></div></div>
     <div class="cc"><div class="ct">Robustas Seasonality</div><div class="cs">Thousand bags by month</div><canvas id="XS_rob" height="120"></canvas><div class="leg" id="XL_rob"></div></div>
   </div>
+  <div class="sec">Cumulative Exports — Calendar Year (Jan–Dec)</div>
+  <div class="c2">
+    <div class="cc"><div class="ct">Total — Cumulative Calendar Year</div><div class="cs">Thousand bags, Jan–Dec, each line = one year</div><canvas id="XC_tot" height="120"></canvas><div class="leg" id="XCL_tot"></div></div>
+    <div class="cc"><div class="ct">Arabicas — Cumulative Calendar Year</div><div class="cs">Thousand bags, Jan–Dec</div><canvas id="XC_ara" height="120"></canvas><div class="leg" id="XCL_ara"></div></div>
+  </div>
+  <div class="c2">
+    <div class="cc"><div class="ct">Colombian Milds — Cumulative Calendar Year</div><div class="cs">Thousand bags, Jan–Dec</div><canvas id="XC_col" height="120"></canvas><div class="leg" id="XCL_col"></div></div>
+    <div class="cc"><div class="ct">Other Milds — Cumulative Calendar Year</div><div class="cs">Thousand bags, Jan–Dec</div><canvas id="XC_oth" height="120"></canvas><div class="leg" id="XCL_oth"></div></div>
+  </div>
+  <div class="c2">
+    <div class="cc"><div class="ct">Brazilian Naturals — Cumulative Calendar Year</div><div class="cs">Thousand bags, Jan–Dec</div><canvas id="XC_bra" height="120"></canvas><div class="leg" id="XCL_bra"></div></div>
+    <div class="cc"><div class="ct">Robustas — Cumulative Calendar Year</div><div class="cs">Thousand bags, Jan–Dec</div><canvas id="XC_rob" height="120"></canvas><div class="leg" id="XCL_rob"></div></div>
+  </div>
+  <div class="sec">Cumulative Exports — Marketing Year (Oct–Sep)</div>
+  <div class="c2">
+    <div class="cc"><div class="ct">Total — Cumulative Marketing Year</div><div class="cs">Thousand bags, Oct–Sep, each line = one marketing year</div><canvas id="XM_tot" height="120"></canvas><div class="leg" id="XML_tot"></div></div>
+    <div class="cc"><div class="ct">Arabicas — Cumulative Marketing Year</div><div class="cs">Thousand bags, Oct–Sep</div><canvas id="XM_ara" height="120"></canvas><div class="leg" id="XML_ara"></div></div>
+  </div>
+  <div class="c2">
+    <div class="cc"><div class="ct">Colombian Milds — Cumulative Marketing Year</div><div class="cs">Thousand bags, Oct–Sep</div><canvas id="XM_col" height="120"></canvas><div class="leg" id="XML_col"></div></div>
+    <div class="cc"><div class="ct">Other Milds — Cumulative Marketing Year</div><div class="cs">Thousand bags, Oct–Sep</div><canvas id="XM_oth" height="120"></canvas><div class="leg" id="XML_oth"></div></div>
+  </div>
+  <div class="c2">
+    <div class="cc"><div class="ct">Brazilian Naturals — Cumulative Marketing Year</div><div class="cs">Thousand bags, Oct–Sep</div><canvas id="XM_bra" height="120"></canvas><div class="leg" id="XML_bra"></div></div>
+    <div class="cc"><div class="ct">Robustas — Cumulative Marketing Year</div><div class="cs">Thousand bags, Oct–Sep</div><canvas id="XM_rob" height="120"></canvas><div class="leg" id="XML_rob"></div></div>
+  </div>
 </div>
 
 <script>
 // ─── CONFIG ───────────────────────────────────────────────────────
 const BASE = 'https://raw.githubusercontent.com/BMR-Com/coffee-analytics/main/data/csv/';
+const BASE_RAW = 'https://raw.githubusercontent.com/BMR-Com/coffee-analytics/main/data/csv/';
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const PAL = ['#e8a020','#3b82f6','#22c55e','#ef4444','#a78bfa','#06b6d4','#f97316','#ec4899','#84cc16','#14b8a6','#fb923c','#818cf8','#4ade80','#f87171','#c084fc'];
 
@@ -446,6 +570,481 @@ function buildStocks(){
   drawSeason('K_slon', 'KL_lon', all, 'stock_month', 'london_bags_millions');
 }
 
+
+// ─── SUMMARY SECTION ─────────────────────────────────────────────
+const MO_ABBR = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function smRow(label, value, yoy, vs10y, unit){
+  unit = unit || '';
+  const yoyHtml = yoy != null
+    ? `<span class="sm-yoy ${yoy>=0?'pos':'neg'}">${yoy>=0?'▲':'▼'}${Math.abs(yoy).toFixed(1)}%YoY</span>`
+    : '<span class="sm-yoy neu">—</span>';
+  const y10Html = vs10y != null
+    ? `<span class="sm-10y">${vs10y>=0?'+':''}${vs10y.toFixed(1)}%vs10Y</span>`
+    : '';
+  const valStr  = value != null ? parseFloat(value).toFixed(value<10?2:0)+unit : '—';
+  return `<div class="sm-row">
+    <span class="sm-lbl">${label}</span>
+    <div class="sm-vals">
+      <span class="sm-val">${valStr}</span>
+      ${yoyHtml}${y10Html}
+    </div>
+  </div>`;
+}
+
+function calcYoY(rows, keyCol, valCol, latestKey){
+  const sorted = rows.slice().sort((a,b)=>String(a[keyCol]).localeCompare(String(b[keyCol])));
+  const last   = sorted.filter(r=>r[keyCol]===latestKey)[0];
+  if(!last || last[valCol]==null) return {val:null,yoy:null,vs10y:null};
+  const val    = parseFloat(last[valCol]);
+  const mo     = String(latestKey).slice(5);  // MM
+  // Prior year same month
+  const priorKey = (parseInt(String(latestKey).slice(0,4))-1)+'-'+mo;
+  const prior  = sorted.filter(r=>r[keyCol]===priorKey)[0];
+  const yoy    = (prior&&prior[valCol]!=null) ? (val-parseFloat(prior[valCol]))/parseFloat(prior[valCol])*100 : null;
+  // 10-year average same month
+  const tenYrsAgo = parseInt(String(latestKey).slice(0,4)) - 10;
+  const sameMonths = sorted.filter(r=>{
+    const yrr = parseInt(String(r[keyCol]).slice(0,4));
+    return String(r[keyCol]).slice(5)===mo && yrr>=tenYrsAgo && r[valCol]!=null;
+  });
+  const avg10 = sameMonths.length ? sameMonths.reduce((s,r)=>s+parseFloat(r[valCol]),0)/sameMonths.length : null;
+  const vs10y = avg10 ? (val-avg10)/avg10*100 : null;
+  return {val, yoy, vs10y};
+}
+
+function buildSummary(){
+  const pSorted = DB.prices.slice().sort((a,b)=>String(a.price_month).localeCompare(String(b.price_month)));
+  const eSorted = DB.exports.slice().sort((a,b)=>String(a.export_month).localeCompare(String(b.export_month)));
+  const byMo = {}; DB.stocks.forEach(r=>{byMo[r.stock_month]=r;});
+  const kSorted = Object.values(byMo).sort((a,b)=>String(a.stock_month).localeCompare(String(b.stock_month)));
+
+  const latestP = pSorted.length ? pSorted[pSorted.length-1].price_month : null;
+  const latestE = eSorted.length ? eSorted[eSorted.length-1].export_month : null;
+  const latestK = kSorted.length ? kSorted[kSorted.length-1].stock_month  : null;
+  if(!latestP) return;
+
+  const L  = pSorted[pSorted.length-1];
+  const LP = pSorted[pSorted.length-2];
+  const EL = eSorted[eSorted.length-1];
+  const EP = EL ? eSorted.find(r=>r.export_month===(parseInt(EL.export_month.slice(0,4))-1)+'-'+EL.export_month.slice(5)) : null;
+  const KL = kSorted[kSorted.length-1];
+  const KP = kSorted[kSorted.length-2];
+
+  function pct(a,b){ return (a!=null&&b!=null&&b!==0) ? ((a-b)/b*100) : null; }
+  function fmt(v,dp){ return v!=null ? parseFloat(v).toFixed(dp!=null?dp:2) : '—'; }
+  function dir(v){ return v==null?'unchanged':v>0?'rose':'fell'; }
+  function dirCls(v){ return v==null?'':v>0?'narr-pos':'narr-neg'; }
+  function absPct(v){ return v!=null ? Math.abs(v).toFixed(1)+'%' : ''; }
+  function arrow(v){ return v==null?'':v>0?'▲':'▼'; }
+
+  // 10-year average for same calendar month
+  function avg10(rows, keyCol, valCol, latestKey){
+    const mo = String(latestKey).slice(5);
+    const yr = parseInt(String(latestKey).slice(0,4));
+    const pts = rows.filter(r=>String(r[keyCol]).slice(5)===mo &&
+                               parseInt(String(r[keyCol]).slice(0,4))>=yr-10 &&
+                               r[valCol]!=null);
+    return pts.length ? pts.reduce((s,r)=>s+parseFloat(r[valCol]),0)/pts.length : null;
+  }
+  function vs10(val, avg){ return (val!=null&&avg!=null) ? ((val-avg)/avg*100) : null; }
+
+  // ── Build narrative bullets ────────────────────────────────────
+  const bullets = [];
+
+  // 1. I-CIP price
+  if(L && L.i_cip != null){
+    const mom = pct(L.i_cip, LP&&LP.i_cip);
+    const a10 = avg10(pSorted,'price_month','i_cip',latestP);
+    const v10 = vs10(L.i_cip, a10);
+    let b = `The ICO Composite Indicator Price (I-CIP) <span class="${dirCls(mom)}">${dir(mom)} ${arrow(mom)}${absPct(mom)} MoM</span> to <span class="narr-hl">${fmt(L.i_cip)} ¢/lb</span> in ${latestP}`;
+    if(a10!=null) b += `, <span class="${dirCls(v10)}">${Math.abs(v10).toFixed(1)}% ${v10>=0?'above':'below'}</span> its 10-year average of ${fmt(a10)} ¢/lb for this month`;
+    bullets.push(b+'.');
+  }
+
+  // 2. Arabica vs Robusta
+  if(L && L.colombian_milds!=null && L.robustas!=null){
+    const colMom = pct(L.colombian_milds, LP&&LP.colombian_milds);
+    const robMom = pct(L.robustas, LP&&LP.robustas);
+    const arb    = L.new_york_ice!=null&&L.london_ice!=null ? L.new_york_ice-L.london_ice : null;
+    const arbP   = LP&&LP.new_york_ice!=null&&LP.london_ice!=null ? LP.new_york_ice-LP.london_ice : null;
+    bullets.push(
+      `Arabica group: Colombian Milds <span class="${dirCls(colMom)}">${dir(colMom)} ${arrow(colMom)}${absPct(colMom)}</span> to <span class="narr-hl">${fmt(L.colombian_milds)} ¢/lb</span>; ` +
+      `Other Milds at <span class="narr-hl">${fmt(L.other_milds)} ¢/lb</span>; ` +
+      `Brazilian Naturals at <span class="narr-hl">${fmt(L.brazilian_naturals)} ¢/lb</span>. ` +
+      `Robustas <span class="${dirCls(robMom)}">${dir(robMom)} ${arrow(robMom)}${absPct(robMom)}</span> to <span class="narr-hl">${fmt(L.robustas)} ¢/lb</span>.`
+    );
+    if(arb!=null){
+      const arbMom = pct(arb, arbP);
+      bullets.push(
+        `Arabica–Robusta arbitrage (NY ICE − London ICE) <span class="${dirCls(arbMom)}">${dir(arbMom)}</span> to <span class="narr-hl">${fmt(arb)} ¢/lb</span>` +
+        (arbP!=null?` from ${fmt(arbP)} ¢/lb prior month`:'')+'. '+
+        `NY ICE at ${fmt(L.new_york_ice)} ¢/lb; London ICE at ${fmt(L.london_ice)} ¢/lb.`
+      );
+    }
+  }
+
+  // 3. Differentials
+  if(L && L.colombian_milds!=null && L.new_york_ice!=null){
+    const d1 = L.colombian_milds - L.new_york_ice;
+    const d2 = L.other_milds!=null ? L.other_milds - L.new_york_ice : null;
+    const d3 = L.brazilian_naturals!=null ? L.brazilian_naturals - L.new_york_ice : null;
+    const d4 = L.robustas!=null && L.london_ice!=null ? L.robustas - L.london_ice : null;
+    const a10d1 = avg10(DB.prices.map(r=>({price_month:r.price_month,
+      v:r.colombian_milds!=null&&r.new_york_ice!=null?r.colombian_milds-r.new_york_ice:null})),
+      'price_month','v',latestP);
+    bullets.push(
+      `Price differentials vs futures: Colombian Milds ${d1>=0?'premium':'discount'} of <span class="${d1>=0?'narr-pos':'narr-neg'}">${fmt(Math.abs(d1))} ¢/lb</span> to NY ICE` +
+      (a10d1!=null?` (10yr avg ${fmt(a10d1)} ¢/lb)`:'') + '; ' +
+      (d2!=null?`Other Milds ${fmt(d2)} ¢/lb; `:'') +
+      (d3!=null?`Brazilian Naturals ${fmt(d3)} ¢/lb; `:'') +
+      (d4!=null?`Robustas vs London ICE: ${fmt(d4)} ¢/lb.`:'')
+    );
+  }
+
+  // 4. Exports
+  if(EL && EL.total!=null){
+    const totMom = pct(EL.total, EP&&EP.total);
+    const a10tot = avg10(eSorted,'export_month','total',latestE);
+    const v10tot = vs10(EL.total, a10tot);
+    bullets.push(
+      `Green bean exports in <span class="narr-hl">${latestE}</span> totalled <span class="narr-hl">${Math.round(EL.total).toLocaleString()} thousand bags</span>` +
+      (EP&&EP.total!=null?`, <span class="${dirCls(totMom)}">${arrow(totMom)}${absPct(totMom)} YoY</span> vs ${Math.round(EP.total).toLocaleString()} thousand bags in ${latestE.slice(0,4)-1}`:'') +
+      (a10tot!=null?`. ${v10tot>=0?'Above':'Below'} the 10-year same-month average by <span class="${dirCls(v10tot)}">${Math.abs(v10tot).toFixed(1)}%</span>`:'') +
+      '. Arabicas: '+fmt(EL.arabicas,0)+'k bags; Robustas: '+fmt(EL.robustas,0)+'k bags.'
+    );
+    if(EL.colombian_milds!=null){
+      const colYoy = pct(EL.colombian_milds, EP&&EP.colombian_milds);
+      const robYoy = pct(EL.robustas, EP&&EP.robustas);
+      bullets.push(
+        `By group: Colombian Milds <span class="${dirCls(colYoy)}">${arrow(colYoy)}${absPct(colYoy)} YoY</span> at ${fmt(EL.colombian_milds,0)}k bags; ` +
+        `Other Milds at ${fmt(EL.other_milds,0)}k bags; ` +
+        `Brazilian Naturals at ${fmt(EL.brazilian_naturals,0)}k bags; ` +
+        `Robustas <span class="${dirCls(robYoy)}">${arrow(robYoy)}${absPct(robYoy)} YoY</span> at ${fmt(EL.robustas,0)}k bags.`
+      );
+    }
+  }
+
+  // 5. Certified stocks
+  if(KL && KL.new_york_bags_millions!=null){
+    const nyMom  = pct(KL.new_york_bags_millions, KP&&KP.new_york_bags_millions);
+    const lonMom = pct(KL.london_bags_millions,   KP&&KP.london_bags_millions);
+    const a10ny  = avg10(kSorted,'stock_month','new_york_bags_millions',latestK);
+    const v10ny  = vs10(KL.new_york_bags_millions, a10ny);
+    bullets.push(
+      `Certified stocks at <span class="narr-hl">${latestK}</span>: NY <span class="narr-hl">${fmt(KL.new_york_bags_millions)} m bags</span> ` +
+      `<span class="${dirCls(nyMom)}">(${arrow(nyMom)}${absPct(nyMom)} MoM)</span>` +
+      (a10ny!=null?`, ${Math.abs(v10ny).toFixed(1)}% ${v10ny>=0?'above':'below'} 10yr avg`:'') +
+      `; London <span class="narr-hl">${fmt(KL.london_bags_millions)} m bags</span> ` +
+      `<span class="${dirCls(lonMom)}">(${arrow(lonMom)}${absPct(lonMom)} MoM)</span>.`
+    );
+  }
+
+  // Render bullets
+  const narrEl = document.getElementById('autoNarrative');
+  if(narrEl){
+    narrEl.innerHTML = bullets.map(b =>
+      `<div class="narr-bullet"><span class="narr-dot">•</span><span>${b}</span></div>`
+    ).join('');
+  }
+
+  // ── Data grid cards ───────────────────────────────────────────
+  const pFields = [
+    ['I-CIP','i_cip'],['Colombian Milds','colombian_milds'],
+    ['Other Milds','other_milds'],['Brazilian Naturals','brazilian_naturals'],
+    ['Robustas','robustas'],['NY ICE','new_york_ice'],['London ICE','london_ice'],
+  ];
+  document.getElementById('smPrices').innerHTML =
+    pFields.map(([lbl,fld])=>{ const {val,yoy,vs10y}=calcYoY(DB.prices,'price_month',fld,latestP); return smRow(lbl,val,yoy,vs10y); }).join('');
+
+  const diffData = DB.prices.map(r=>({
+    price_month:r.price_month,
+    col_diff: (r.colombian_milds!=null&&r.new_york_ice!=null)?+(r.colombian_milds-r.new_york_ice).toFixed(2):null,
+    oth_diff: (r.other_milds!=null&&r.new_york_ice!=null)?+(r.other_milds-r.new_york_ice).toFixed(2):null,
+    bra_diff: (r.brazilian_naturals!=null&&r.new_york_ice!=null)?+(r.brazilian_naturals-r.new_york_ice).toFixed(2):null,
+    rob_diff: (r.robustas!=null&&r.london_ice!=null)?+(r.robustas-r.london_ice).toFixed(2):null,
+    arb:      (r.new_york_ice!=null&&r.london_ice!=null)?+(r.new_york_ice-r.london_ice).toFixed(2):null,
+  }));
+  const dFields=[['Colombian − NY','col_diff'],['Other − NY','oth_diff'],
+                  ['Brazilian − NY','bra_diff'],['Robustas − London','rob_diff'],['Arbitrage NY−LON','arb']];
+  document.getElementById('smDiffs').innerHTML =
+    dFields.map(([lbl,fld])=>{ const {val,yoy,vs10y}=calcYoY(diffData,'price_month',fld,latestP); return smRow(lbl,val,yoy,vs10y); }).join('');
+
+  if(latestE){
+    const eFields=[['Total','total'],['Arabicas','arabicas'],['Colombian Milds','colombian_milds'],
+                   ['Other Milds','other_milds'],['Brazilian Naturals','brazilian_naturals'],['Robustas','robustas']];
+    document.getElementById('smExports').innerHTML =
+      eFields.map(([lbl,fld])=>{ const {val,yoy,vs10y}=calcYoY(DB.exports,'export_month',fld,latestE); return smRow(lbl,val!=null?Math.round(val):null,yoy,vs10y); }).join('');
+  }
+
+  if(latestK){
+    const kFields=[['New York','new_york_bags_millions'],['London','london_bags_millions']];
+    document.getElementById('smStocks').innerHTML =
+      kFields.map(([lbl,fld])=>{ const {val,yoy,vs10y}=calcYoY(kSorted,'stock_month',fld,latestK); return smRow(lbl,val,yoy,vs10y); }).join('');
+  }
+
+  // Show Gemini key prompt (don't auto-call)
+  const savedKey = sessionStorage.getItem('geminiKey');
+  if(savedKey){
+    const inp = document.getElementById('geminiKeyInput');
+    if(inp) inp.value = savedKey;
+    document.getElementById('icoReportPeriod').textContent = latestP||'—';
+  }
+}
+
+
+// ─── ICO REPORT SUMMARY (Anthropic API) ──────────────────────────
+let icoSummaryLoaded = false;
+
+function showGeminiPrompt(){
+  // Show the key input area
+  document.getElementById('icoKeyPrompt').style.display = 'flex';
+  document.getElementById('geminiKeyInput').focus();
+}
+
+async function loadICOSummary(force){
+  const bodyEl    = document.getElementById('icoSummaryBody');
+  const promptEl  = document.getElementById('icoKeyPrompt');
+  const periodEl  = document.getElementById('icoReportPeriod');
+  const refreshEl = document.getElementById('icoRefreshBtn');
+
+  // Get key — from input or sessionStorage (so refresh doesn't re-ask)
+  let apiKey = sessionStorage.getItem('geminiKey') || '';
+  const inputEl = document.getElementById('geminiKeyInput');
+  if(inputEl && inputEl.value.trim()) apiKey = inputEl.value.trim();
+
+  if(!apiKey){
+    promptEl.style.display = 'flex';
+    bodyEl.style.display   = 'none';
+    return;
+  }
+
+  // Store key for this session only (never persisted to disk)
+  sessionStorage.setItem('geminiKey', apiKey);
+
+  // Hide prompt, show loading
+  promptEl.style.display  = 'none';
+  bodyEl.style.display    = 'block';
+  bodyEl.className        = 'ico-loading';
+  bodyEl.textContent      = '⟳ Generating 2-page PDF analysis with Gemini...  (~5 seconds)';
+  if(refreshEl) refreshEl.style.display = 'inline-block';
+
+  try {
+    // Build data context from CSVs already loaded
+    const pSorted = DB.prices.slice().sort((a,b)=>String(a.price_month).localeCompare(String(b.price_month)));
+    const L = pSorted[pSorted.length-1];
+    const P = pSorted[pSorted.length-2];
+
+    const eSorted = DB.exports.slice().sort((a,b)=>String(a.export_month).localeCompare(String(b.export_month)));
+    const EL = eSorted[eSorted.length-1];
+    const EP = EL ? eSorted.find(r =>
+      r.export_month === (parseInt(EL.export_month.slice(0,4))-1)+'-'+EL.export_month.slice(5)
+    ) : null;
+
+    const byMo = {}; DB.stocks.forEach(r=>{byMo[r.stock_month]=r;});
+    const kSorted = Object.values(byMo).sort((a,b)=>String(a.stock_month).localeCompare(String(b.stock_month)));
+    const KL = kSorted[kSorted.length-1];
+    const KP = kSorted[kSorted.length-2];
+
+    // 10-year averages for same month
+    function avg10(rows, keyCol, valCol, latestKey){
+      const mo  = String(latestKey).slice(5);
+      const yr  = parseInt(String(latestKey).slice(0,4));
+      const pts = rows.filter(r => String(r[keyCol]).slice(5)===mo &&
+                                   parseInt(String(r[keyCol]).slice(0,4)) >= yr-10 &&
+                                   r[valCol]!=null);
+      return pts.length ? (pts.reduce((s,r)=>s+parseFloat(r[valCol]),0)/pts.length).toFixed(2) : '—';
+    }
+
+    function pct(a,b){ return (a!=null&&b!=null&&b!==0) ? ((a-b)/b*100).toFixed(1)+'%' : '—'; }
+    function fmt(v,dp){ return v!=null ? parseFloat(v).toFixed(dp!=null?dp:2) : '—'; }
+
+    const latestP  = L  ? L.price_month   : '—';
+    const latestE  = EL ? EL.export_month : '—';
+    const latestK  = KL ? KL.stock_month  : '—';
+
+    if(periodEl) periodEl.textContent = latestP;
+
+    const context = `ICO Coffee Market Report Data — ${latestP}
+
+INDICATOR PRICES (US cents/lb) — ${latestP}:
+  I-CIP:              ${fmt(L&&L.i_cip)}   MoM: ${pct(L&&L.i_cip,P&&P.i_cip)}   10yr avg: ${avg10(DB.prices,'price_month','i_cip',latestP)}
+  Colombian Milds:    ${fmt(L&&L.colombian_milds)}   MoM: ${pct(L&&L.colombian_milds,P&&P.colombian_milds)}   10yr avg: ${avg10(DB.prices,'price_month','colombian_milds',latestP)}
+  Other Milds:        ${fmt(L&&L.other_milds)}   MoM: ${pct(L&&L.other_milds,P&&P.other_milds)}   10yr avg: ${avg10(DB.prices,'price_month','other_milds',latestP)}
+  Brazilian Naturals: ${fmt(L&&L.brazilian_naturals)}   MoM: ${pct(L&&L.brazilian_naturals,P&&P.brazilian_naturals)}   10yr avg: ${avg10(DB.prices,'price_month','brazilian_naturals',latestP)}
+  Robustas:           ${fmt(L&&L.robustas)}   MoM: ${pct(L&&L.robustas,P&&P.robustas)}   10yr avg: ${avg10(DB.prices,'price_month','robustas',latestP)}
+  NY ICE:             ${fmt(L&&L.new_york_ice)}   MoM: ${pct(L&&L.new_york_ice,P&&P.new_york_ice)}   10yr avg: ${avg10(DB.prices,'price_month','new_york_ice',latestP)}
+  London ICE:         ${fmt(L&&L.london_ice)}   MoM: ${pct(L&&L.london_ice,P&&P.london_ice)}   10yr avg: ${avg10(DB.prices,'price_month','london_ice',latestP)}
+
+DIFFERENTIALS (US cents/lb):
+  Colombian − NY ICE: ${L&&L.colombian_milds&&L.new_york_ice ? fmt(L.colombian_milds-L.new_york_ice) : '—'}
+  Other − NY ICE:     ${L&&L.other_milds&&L.new_york_ice ? fmt(L.other_milds-L.new_york_ice) : '—'}
+  Brazilian − NY ICE: ${L&&L.brazilian_naturals&&L.new_york_ice ? fmt(L.brazilian_naturals-L.new_york_ice) : '—'}
+  Robustas − London:  ${L&&L.robustas&&L.london_ice ? fmt(L.robustas-L.london_ice) : '—'}
+  Arbitrage NY−LON:   ${L&&L.new_york_ice&&L.london_ice ? fmt(L.new_york_ice-L.london_ice) : '—'}
+
+EXPORTS — ${latestE} (thousand 60-kg bags):
+  Total:              ${fmt(EL&&EL.total,0)}   YoY: ${pct(EL&&EL.total,EP&&EP.total)}
+  Arabicas:           ${fmt(EL&&EL.arabicas,0)}   YoY: ${pct(EL&&EL.arabicas,EP&&EP.arabicas)}
+  Colombian Milds:    ${fmt(EL&&EL.colombian_milds,0)}   YoY: ${pct(EL&&EL.colombian_milds,EP&&EP.colombian_milds)}
+  Other Milds:        ${fmt(EL&&EL.other_milds,0)}   YoY: ${pct(EL&&EL.other_milds,EP&&EP.other_milds)}
+  Brazilian Naturals: ${fmt(EL&&EL.brazilian_naturals,0)}   YoY: ${pct(EL&&EL.brazilian_naturals,EP&&EP.brazilian_naturals)}
+  Robustas:           ${fmt(EL&&EL.robustas,0)}   YoY: ${pct(EL&&EL.robustas,EP&&EP.robustas)}
+
+CERTIFIED STOCKS — ${latestK} (million 60-kg bags):
+  New York: ${fmt(KL&&KL.new_york_bags_millions)}   MoM: ${pct(KL&&KL.new_york_bags_millions,KP&&KP.new_york_bags_millions)}   10yr avg: ${avg10(kSorted,'stock_month','new_york_bags_millions',latestK)}
+  London:   ${fmt(KL&&KL.london_bags_millions)}   MoM: ${pct(KL&&KL.london_bags_millions,KP&&KP.london_bags_millions)}   10yr avg: ${avg10(kSorted,'stock_month','london_bags_millions',latestK)}`;
+
+    // Fetch the actual ICO PDF and extract text for Gemini to read
+    // First get index.json to find the latest period
+    let pdfNarrative = '';
+    let reportPeriod = latestP;
+    try {
+      const idxUrl  = BASE.replace('/csv/','/')+'/index.json';
+      const idxResp = await fetch(idxUrl);
+      if(idxResp.ok){
+        const idx = await idxResp.json();
+        reportPeriod = (idx.reports&&idx.reports[0]&&idx.reports[0].period) || latestP;
+      }
+    } catch(e){ /* use latestP */ }
+
+    if(periodEl) periodEl.textContent = reportPeriod;
+
+    // Fetch the PDF text directly (GitHub stores extracted text via pipeline)
+    // We use our structured CSV data as the context — pipeline already extracted all figures
+    // Gemini will act as analyst interpreting these figures with commodity market knowledge
+
+    const prompt = `You are a senior coffee commodity analyst writing a 2-page executive summary of the ICO Monthly Coffee Market Report for ${reportPeriod}.
+
+Using the following data extracted from the report, write a comprehensive analysis covering:
+
+1. PRICE ANALYSIS — Detailed commentary on price movements, drivers, and context
+2. ARABICA vs ROBUSTA DYNAMICS — Spread analysis, group performance, futures markets
+3. PRICE DIFFERENTIALS — What the differentials vs futures tell us about physical market
+4. EXPORT ANALYSIS — Volume, composition, year-on-year comparison, key origins
+5. CERTIFIED STOCKS — Inventory levels, implications for price
+6. SUPPLY/DEMAND BALANCE — High-level assessment (note: balance sheet table not available in text extraction)
+7. MARKET OUTLOOK — Key risks and signals based on the data
+
+Write in professional commodity analyst style. Be specific with every number. Use section headers. Total length: approximately 400-500 words.
+
+DATA:
+${context}`;
+
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const resp = await fetch(geminiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents:[{ parts:[{ text: prompt }] }],
+        generationConfig:{ maxOutputTokens:1500, temperature:0.2 }
+      })
+    });
+
+    if(!resp.ok){
+      const err = await resp.json().catch(()=>({}));
+      const msg = err.error&&err.error.message || `HTTP ${resp.status}`;
+      bodyEl.textContent = `❌ Gemini API error: ${msg}`;
+      if(msg.includes('API_KEY') || msg.includes('key')) {
+        // Bad key — show prompt again
+        sessionStorage.removeItem('geminiKey');
+        promptEl.style.display = 'flex';
+        if(inputEl) { inputEl.value=''; inputEl.focus(); }
+      }
+      return;
+    }
+
+    const data = await resp.json();
+    const text = data.candidates &&
+                 data.candidates[0] &&
+                 data.candidates[0].content &&
+                 data.candidates[0].content.parts &&
+                 data.candidates[0].content.parts[0] &&
+                 data.candidates[0].content.parts[0].text;
+
+    if(text){
+      bodyEl.className   = 'ico-body';
+      bodyEl.textContent = text.trim();
+    } else {
+      bodyEl.textContent = '⚠ Empty response from Gemini. Try again.';
+    }
+
+  } catch(e){
+    console.error('Gemini summary failed:', e);
+    bodyEl.textContent = '❌ Request failed: '+e.message+'. Check your key and try again.';
+  }
+}
+
+// ─── CUMULATIVE EXPORTS ───────────────────────────────────────────
+const CY_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MY_MONTHS = ['Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep'];
+
+function buildCumulative(id, legId, allRows, field, mode){
+  // mode: 'cal' = calendar year Jan-Dec | 'mkt' = marketing year Oct-Sep
+  // Build: year -> month_index(0-11) -> cumulative value
+
+  // Group raw data: year+month -> value
+  const raw = {}; // key: 'YYYY-MM' -> value
+  allRows.forEach(r => {
+    if(r.export_month && r[field]!=null && !isNaN(r[field])){
+      raw[r.export_month] = parseFloat(r[field]);
+    }
+  });
+
+  // Determine years to show based on rangeMo
+  const allYears = [...new Set(allRows.map(r=>r.export_month&&r.export_month.slice(0,4)).filter(Boolean))].sort();
+  const nY = rangeMo===12?1 : rangeMo===36?3 : rangeMo===60?5 : allYears.length;
+  const years = allYears.slice(-nY);
+
+  const xLabels = mode==='cal' ? CY_MONTHS : MY_MONTHS;
+
+  const datasets = years.map((yr, i) => {
+    let cumSum = 0;
+    const data = xLabels.map((_, mi) => {
+      let yyyy, mm;
+      if(mode === 'cal'){
+        yyyy = yr;
+        mm   = String(mi+1).padStart(2,'0');
+      } else {
+        // Marketing year: Oct(mi=0)=yr, Nov(mi=1)=yr, Dec(mi=2)=yr,
+        //                 Jan(mi=3)=yr+1, ..., Sep(mi=11)=yr+1
+        if(mi <= 2){ yyyy = yr; mm = String(10+mi).padStart(2,'0'); }
+        else        { yyyy = String(parseInt(yr)+1); mm = String(mi-2).padStart(2,'0'); }
+      }
+      const key = `${yyyy}-${mm}`;
+      const v   = raw[key];
+      if(v != null){ cumSum += v; return +(cumSum.toFixed(1)); }
+      return null; // partial year — line stops here
+    });
+    return {
+      label: mode==='mkt' ? yr+'/'+(parseInt(yr)+1).toString().slice(2) : yr,
+      data,
+      borderColor: PAL[i%PAL.length],
+      backgroundColor: 'transparent',
+      borderWidth: 1.8, tension:.3, pointRadius:0, pointHoverRadius:4,
+      spanGaps: false  // partial year stops at last data point
+    };
+  });
+
+  draw(id, xLabels, datasets, mkSeasonOpts());
+  if(legId) legend(legId, years.map((yr,i)=>[PAL[i%PAL.length],
+    mode==='mkt' ? yr+'/'+(parseInt(yr)+1).toString().slice(2) : yr]));
+}
+
+function buildCumulativeAll(){
+  const all  = DB.exports.slice().sort((a,b)=>String(a.export_month).localeCompare(String(b.export_month)));
+  const EFLDS = ['total','arabicas','colombian_milds','other_milds','brazilian_naturals','robustas'];
+  const XCIDS = ['XC_tot','XC_ara','XC_col','XC_oth','XC_bra','XC_rob'];
+  const XCLEG = ['XCL_tot','XCL_ara','XCL_col','XCL_oth','XCL_bra','XCL_rob'];
+  const XMIDS = ['XM_tot','XM_ara','XM_col','XM_oth','XM_bra','XM_rob'];
+  const XMLEG = ['XML_tot','XML_ara','XML_col','XML_oth','XML_bra','XML_rob'];
+
+  EFLDS.forEach((f,i) => {
+    buildCumulative(XCIDS[i], XCLEG[i], all, f, 'cal');
+    buildCumulative(XMIDS[i], XMLEG[i], all, f, 'mkt');
+  });
+}
+
 // ─── BUILD EXPORTS ───────────────────────────────────────────────
 function buildExports(){
   if(!DB.exports.length) return;
@@ -465,6 +1064,7 @@ function buildExports(){
     draw(EIDS[i], lbl, [ds(ENAMS[i], rows.map(r=>r[f]), ECOLS[i], true)]);
     drawSeason(SSIDS[i], LEGIDS[i], all, 'export_month', f);
   });
+  buildCumulativeAll();
 }
 
 // ─── TAB SWITCH ──────────────────────────────────────────────────
@@ -481,7 +1081,7 @@ function switchTab(name, btn){
     if(name==='diffs')   buildDiffs();
     if(name==='season')  buildSeason();
     if(name==='stocks')  buildStocks();
-    if(name==='exports') buildExports();
+    if(name==='exports'){ buildExports(); }
   });
 }
 
@@ -509,6 +1109,7 @@ function setRange(mo, btn){
   buildSeason();
   buildStocks();
   buildExports();
+  buildSummary();
 }
 
 // ─── LOAD DATA ───────────────────────────────────────────────────
@@ -541,8 +1142,9 @@ async function init(){
     const info = document.getElementById('rangeInfo');
     if(info && sorted.length) info.textContent = sorted[0].price_month+' – present';
 
-    // Build only the visible tab (Prices) on load
+    // Build visible tab and summary
     buildPrices();
+    buildSummary();
 
   } catch(e){
     console.error('Init failed:', e);
