@@ -797,7 +797,6 @@ function buildSummary(){
 let icoSummaryLoaded = false;
 
 function showGeminiPrompt(){
-  // Show the key input area
   document.getElementById('icoKeyPrompt').style.display = 'flex';
   document.getElementById('geminiKeyInput').focus();
 }
@@ -808,7 +807,7 @@ async function loadICOSummary(force){
   const periodEl  = document.getElementById('icoReportPeriod');
   const refreshEl = document.getElementById('icoRefreshBtn');
 
-  // Get key — from input or sessionStorage (so refresh doesn't re-ask)
+  // Get key from input or session
   let apiKey = sessionStorage.getItem('groqKey') || '';
   const inputEl = document.getElementById('geminiKeyInput');
   if(inputEl && inputEl.value.trim()) apiKey = inputEl.value.trim();
@@ -819,121 +818,137 @@ async function loadICOSummary(force){
     return;
   }
 
-  // Store key for this session only (never persisted to disk)
+  // Store key for session
   sessionStorage.setItem('groqKey', apiKey);
-
-  // Hide prompt, show loading
-  promptEl.style.display  = 'none';
-  bodyEl.style.display    = 'block';
-  bodyEl.className        = 'ico-loading';
-  bodyEl.textContent      = '⟳ Connecting to Groq / Llama 3.3 70B...';
+  promptEl.style.display = 'none';
+  bodyEl.style.display   = 'block';
+  bodyEl.className       = 'ico-loading';
   if(refreshEl) refreshEl.style.display = 'inline-block';
 
   try {
-    // Build data context from CSVs already loaded
-    const pSorted = DB.prices.slice().sort((a,b)=>String(a.price_month).localeCompare(String(b.price_month)));
-    const L = pSorted[pSorted.length-1];
-    const P = pSorted[pSorted.length-2];
-
-    const eSorted = DB.exports.slice().sort((a,b)=>String(a.export_month).localeCompare(String(b.export_month)));
-    const EL = eSorted[eSorted.length-1];
-    const EP = EL ? eSorted.find(r =>
-      r.export_month === (parseInt(EL.export_month.slice(0,4))-1)+'-'+EL.export_month.slice(5)
-    ) : null;
-
-    const byMo = {}; DB.stocks.forEach(r=>{byMo[r.stock_month]=r;});
-    const kSorted = Object.values(byMo).sort((a,b)=>String(a.stock_month).localeCompare(String(b.stock_month)));
-    const KL = kSorted[kSorted.length-1];
-    const KP = kSorted[kSorted.length-2];
-
-    // 10-year averages for same month
-    function avg10(rows, keyCol, valCol, latestKey){
-      const mo  = String(latestKey).slice(5);
-      const yr  = parseInt(String(latestKey).slice(0,4));
-      const pts = rows.filter(r => String(r[keyCol]).slice(5)===mo &&
-                                   parseInt(String(r[keyCol]).slice(0,4)) >= yr-10 &&
-                                   r[valCol]!=null);
-      return pts.length ? (pts.reduce((s,r)=>s+parseFloat(r[valCol]),0)/pts.length).toFixed(2) : '—';
-    }
-
-    function pct(a,b){ return (a!=null&&b!=null&&b!==0) ? ((a-b)/b*100).toFixed(1)+'%' : '—'; }
-    function fmt(v,dp){ return v!=null ? parseFloat(v).toFixed(dp!=null?dp:2) : '—'; }
-
-    const latestP  = L  ? L.price_month   : '—';
-    const latestE  = EL ? EL.export_month : '—';
-    const latestK  = KL ? KL.stock_month  : '—';
-
-    if(periodEl) periodEl.textContent = latestP;
-
-    const context = `ICO Coffee Market Report Data — ${latestP}
-
-INDICATOR PRICES (US cents/lb) — ${latestP}:
-  I-CIP:              ${fmt(L&&L.i_cip)}   MoM: ${pct(L&&L.i_cip,P&&P.i_cip)}   10yr avg: ${avg10(DB.prices,'price_month','i_cip',latestP)}
-  Colombian Milds:    ${fmt(L&&L.colombian_milds)}   MoM: ${pct(L&&L.colombian_milds,P&&P.colombian_milds)}   10yr avg: ${avg10(DB.prices,'price_month','colombian_milds',latestP)}
-  Other Milds:        ${fmt(L&&L.other_milds)}   MoM: ${pct(L&&L.other_milds,P&&P.other_milds)}   10yr avg: ${avg10(DB.prices,'price_month','other_milds',latestP)}
-  Brazilian Naturals: ${fmt(L&&L.brazilian_naturals)}   MoM: ${pct(L&&L.brazilian_naturals,P&&P.brazilian_naturals)}   10yr avg: ${avg10(DB.prices,'price_month','brazilian_naturals',latestP)}
-  Robustas:           ${fmt(L&&L.robustas)}   MoM: ${pct(L&&L.robustas,P&&P.robustas)}   10yr avg: ${avg10(DB.prices,'price_month','robustas',latestP)}
-  NY ICE:             ${fmt(L&&L.new_york_ice)}   MoM: ${pct(L&&L.new_york_ice,P&&P.new_york_ice)}   10yr avg: ${avg10(DB.prices,'price_month','new_york_ice',latestP)}
-  London ICE:         ${fmt(L&&L.london_ice)}   MoM: ${pct(L&&L.london_ice,P&&P.london_ice)}   10yr avg: ${avg10(DB.prices,'price_month','london_ice',latestP)}
-
-DIFFERENTIALS (US cents/lb):
-  Colombian − NY ICE: ${L&&L.colombian_milds&&L.new_york_ice ? fmt(L.colombian_milds-L.new_york_ice) : '—'}
-  Other − NY ICE:     ${L&&L.other_milds&&L.new_york_ice ? fmt(L.other_milds-L.new_york_ice) : '—'}
-  Brazilian − NY ICE: ${L&&L.brazilian_naturals&&L.new_york_ice ? fmt(L.brazilian_naturals-L.new_york_ice) : '—'}
-  Robustas − London:  ${L&&L.robustas&&L.london_ice ? fmt(L.robustas-L.london_ice) : '—'}
-  Arbitrage NY−LON:   ${L&&L.new_york_ice&&L.london_ice ? fmt(L.new_york_ice-L.london_ice) : '—'}
-
-EXPORTS — ${latestE} (thousand 60-kg bags):
-  Total:              ${fmt(EL&&EL.total,0)}   YoY: ${pct(EL&&EL.total,EP&&EP.total)}
-  Arabicas:           ${fmt(EL&&EL.arabicas,0)}   YoY: ${pct(EL&&EL.arabicas,EP&&EP.arabicas)}
-  Colombian Milds:    ${fmt(EL&&EL.colombian_milds,0)}   YoY: ${pct(EL&&EL.colombian_milds,EP&&EP.colombian_milds)}
-  Other Milds:        ${fmt(EL&&EL.other_milds,0)}   YoY: ${pct(EL&&EL.other_milds,EP&&EP.other_milds)}
-  Brazilian Naturals: ${fmt(EL&&EL.brazilian_naturals,0)}   YoY: ${pct(EL&&EL.brazilian_naturals,EP&&EP.brazilian_naturals)}
-  Robustas:           ${fmt(EL&&EL.robustas,0)}   YoY: ${pct(EL&&EL.robustas,EP&&EP.robustas)}
-
-CERTIFIED STOCKS — ${latestK} (million 60-kg bags):
-  New York: ${fmt(KL&&KL.new_york_bags_millions)}   MoM: ${pct(KL&&KL.new_york_bags_millions,KP&&KP.new_york_bags_millions)}   10yr avg: ${avg10(kSorted,'stock_month','new_york_bags_millions',latestK)}
-  London:   ${fmt(KL&&KL.london_bags_millions)}   MoM: ${pct(KL&&KL.london_bags_millions,KP&&KP.london_bags_millions)}   10yr avg: ${avg10(kSorted,'stock_month','london_bags_millions',latestK)}`;
-
-    // Fetch the actual ICO PDF and extract text for Gemini to read
-    // First get index.json to find the latest period
-    let pdfNarrative = '';
-    let reportPeriod = latestP;
+    // ── Step 1: Find latest period from index.json ────────────────
+    bodyEl.textContent = '⟳ Reading index.json...';
+    let latestPeriod = null;
     try {
-      const idxUrl  = BASE.replace('/csv/','/')+'/index.json';
+      const idxUrl  = BASE.replace('/csv/', '/') + 'index.json';
       const idxResp = await fetch(idxUrl);
       if(idxResp.ok){
         const idx = await idxResp.json();
-        reportPeriod = (idx.reports&&idx.reports[0]&&idx.reports[0].period) || latestP;
+        latestPeriod = idx.reports && idx.reports[0] && idx.reports[0].period;
       }
-    } catch(e){ /* use latestP */ }
+    } catch(e){ /* fallback to prices data */ }
 
-    if(periodEl) periodEl.textContent = reportPeriod;
+    // Fallback: use latest price_month from CSV
+    if(!latestPeriod && DB.prices.length){
+      const sorted = DB.prices.slice().sort((a,b)=>String(a.price_month).localeCompare(String(b.price_month)));
+      latestPeriod = sorted[sorted.length-1].price_month;
+    }
+    if(!latestPeriod){ bodyEl.textContent = '❌ Could not determine latest report period'; return; }
+    if(periodEl) periodEl.textContent = latestPeriod;
 
-    // Fetch the PDF text directly (GitHub stores extracted text via pipeline)
-    // We use our structured CSV data as the context — pipeline already extracted all figures
-    // Gemini will act as analyst interpreting these figures with commodity market knowledge
+    // ── Step 2: Fetch extracted PDF text from GitHub ──────────────
+    bodyEl.textContent = '⟳ Fetching PDF text for ' + latestPeriod + '...';
+    let pdfText = '';
+    const txtUrl = BASE.replace('/csv/', '/report-text/') + latestPeriod + '.txt';
+    try {
+      const txtResp = await fetch(txtUrl);
+      if(txtResp.ok){
+        pdfText = await txtResp.text();
+        console.log('PDF text loaded: ' + pdfText.length + ' chars');
+      } else {
+        console.warn('PDF text not found at: ' + txtUrl);
+      }
+    } catch(e){ console.warn('PDF text fetch failed:', e); }
 
-    const prompt = `You are a senior coffee commodity analyst writing a 2-page executive summary of the ICO Monthly Coffee Market Report for ${reportPeriod}.
+    // ── Step 3: Build prompt ──────────────────────────────────────
+    let prompt = '';
 
-Using the following data extracted from the report, write a comprehensive analysis covering:
+    if(pdfText && pdfText.length > 500){
+      // We have the actual PDF text — send it to Groq
+      // Trim to ~12000 chars to stay within token limits (Llama context is large)
+      const trimmed = pdfText.length > 12000 ? pdfText.slice(0, 12000) + '\n...[truncated]' : pdfText;
+      bodyEl.textContent = '⟳ Sending PDF text to Groq (' + Math.round(pdfText.length/1000) + 'k chars)...';
+      prompt = `You are a senior coffee commodity analyst. Below is the full text extracted from the ICO Monthly Coffee Market Report for ${latestPeriod}.
 
-1. PRICE ANALYSIS — Detailed commentary on price movements, drivers, and context
-2. ARABICA vs ROBUSTA DYNAMICS — Spread analysis, group performance, futures markets
-3. PRICE DIFFERENTIALS — What the differentials vs futures tell us about physical market
-4. EXPORT ANALYSIS — Volume, composition, year-on-year comparison, key origins
-5. CERTIFIED STOCKS — Inventory levels, implications for price
-6. SUPPLY/DEMAND BALANCE — High-level assessment (note: balance sheet table not available in text extraction)
-7. MARKET OUTLOOK — Key risks and signals based on the data
+Write a comprehensive 2-page executive summary covering ALL of the following sections:
 
-Write in professional commodity analyst style. Be specific with every number. Use section headers. Total length: approximately 400-500 words.
+**1. PRICE MOVEMENTS**
+Detail all price changes for I-CIP, Colombian Milds, Other Milds, Brazilian Naturals, Robustas, NY ICE, and London ICE. Include exact figures and % changes.
 
-DATA:
-${context}`;
+**2. PRICE DIFFERENTIALS**
+Analyse the differentials between physical prices and futures (Colombian vs NY, Other vs NY, Brazilian vs NY, Robustas vs London) and the Arabica-Robusta arbitrage.
 
-    // Call Groq API — free tier, no billing needed
-    // Model: llama-3.3-70b-versatile
-    bodyEl.textContent = '⟳ Generating analysis with Groq / Llama 3.3 70B...';
+**3. SUPPLY & DEMAND BALANCE**
+Extract and present the World Supply/Demand Balance table figures if present (production, consumption, balance by year).
+
+**4. EXPORT PERFORMANCE**
+Detail total exports, breakdown by Arabica groups and Robustas, year-on-year comparisons, and key origin highlights.
+
+**5. CERTIFIED STOCKS**
+Report NY and London certified stock levels and month-on-month changes.
+
+**6. MARKET DRIVERS & OUTLOOK**
+Summarise the key factors ICO identified as driving the market. Include any supply concerns, weather events, policy changes, or demand shifts mentioned.
+
+Use professional commodity analyst language. Be specific with every number mentioned in the report. Use section headers in bold.
+
+--- ICO REPORT TEXT ---
+${trimmed}
+--- END OF REPORT ---`;
+
+    } else {
+      // PDF text not available — fall back to CSV data context
+      bodyEl.textContent = '⟳ PDF text not available, using CSV data...';
+
+      const pSorted = DB.prices.slice().sort((a,b)=>String(a.price_month).localeCompare(String(b.price_month)));
+      const L  = pSorted[pSorted.length-1];
+      const LP = pSorted[pSorted.length-2];
+      const eSorted = DB.exports.slice().sort((a,b)=>String(a.export_month).localeCompare(String(b.export_month)));
+      const EL = eSorted[eSorted.length-1];
+      const EP = EL ? eSorted.find(r=>r.export_month===(parseInt(EL.export_month.slice(0,4))-1)+'-'+EL.export_month.slice(5)) : null;
+      const byMo={}; DB.stocks.forEach(r=>{byMo[r.stock_month]=r;});
+      const kSorted=Object.values(byMo).sort((a,b)=>String(a.stock_month).localeCompare(String(b.stock_month)));
+      const KL=kSorted[kSorted.length-1], KP=kSorted[kSorted.length-2];
+
+      function pct(a,b){ return (a!=null&&b!=null&&b!==0)?((a-b)/b*100).toFixed(1)+'%':'—'; }
+      function fmt(v,dp){ return v!=null?parseFloat(v).toFixed(dp!=null?dp:2):'—'; }
+      function avg10(rows,kc,vc,lk){
+        const mo=String(lk).slice(5),yr=parseInt(String(lk).slice(0,4));
+        const pts=rows.filter(r=>String(r[kc]).slice(5)===mo&&parseInt(String(r[kc]).slice(0,4))>=yr-10&&r[vc]!=null);
+        return pts.length?pts.reduce((s,r)=>s+parseFloat(r[vc]),0)/pts.length:null;
+      }
+
+      const a10icip = avg10(DB.prices,'price_month','i_cip',latestPeriod);
+
+      prompt = `You are a senior coffee commodity analyst. The PDF text for the ICO report ${latestPeriod} is not yet available (pipeline may not have saved it). Based on the structured data below, write a comprehensive market analysis covering prices, differentials, exports, certified stocks, and market outlook. Note where data is missing.
+
+PRICES (US cents/lb) — ${latestPeriod}:
+  I-CIP:              ${fmt(L&&L.i_cip)} (MoM: ${pct(L&&L.i_cip,LP&&LP.i_cip)}, 10yr avg: ${a10icip?fmt(a10icip):'—'})
+  Colombian Milds:    ${fmt(L&&L.colombian_milds)} (MoM: ${pct(L&&L.colombian_milds,LP&&LP.colombian_milds)})
+  Other Milds:        ${fmt(L&&L.other_milds)} (MoM: ${pct(L&&L.other_milds,LP&&LP.other_milds)})
+  Brazilian Naturals: ${fmt(L&&L.brazilian_naturals)} (MoM: ${pct(L&&L.brazilian_naturals,LP&&LP.brazilian_naturals)})
+  Robustas:           ${fmt(L&&L.robustas)} (MoM: ${pct(L&&L.robustas,LP&&LP.robustas)})
+  NY ICE:             ${fmt(L&&L.new_york_ice)} (MoM: ${pct(L&&L.new_york_ice,LP&&LP.new_york_ice)})
+  London ICE:         ${fmt(L&&L.london_ice)} (MoM: ${pct(L&&L.london_ice,LP&&LP.london_ice)})
+  Arb NY-LON:         ${L&&L.new_york_ice&&L.london_ice?fmt(L.new_york_ice-L.london_ice):'—'} cents/lb
+
+EXPORTS — ${EL&&EL.export_month||'—'} (thousand 60-kg bags):
+  Total:              ${fmt(EL&&EL.total,0)} (YoY: ${pct(EL&&EL.total,EP&&EP.total)})
+  Arabicas:           ${fmt(EL&&EL.arabicas,0)} (YoY: ${pct(EL&&EL.arabicas,EP&&EP.arabicas)})
+  Colombian Milds:    ${fmt(EL&&EL.colombian_milds,0)} (YoY: ${pct(EL&&EL.colombian_milds,EP&&EP.colombian_milds)})
+  Other Milds:        ${fmt(EL&&EL.other_milds,0)} (YoY: ${pct(EL&&EL.other_milds,EP&&EP.other_milds)})
+  Brazilian Naturals: ${fmt(EL&&EL.brazilian_naturals,0)} (YoY: ${pct(EL&&EL.brazilian_naturals,EP&&EP.brazilian_naturals)})
+  Robustas:           ${fmt(EL&&EL.robustas,0)} (YoY: ${pct(EL&&EL.robustas,EP&&EP.robustas)})
+
+CERTIFIED STOCKS — ${KL&&KL.stock_month||'—'}:
+  New York: ${fmt(KL&&KL.new_york_bags_millions)} million bags (MoM: ${pct(KL&&KL.new_york_bags_millions,KP&&KP.new_york_bags_millions)})
+  London:   ${fmt(KL&&KL.london_bags_millions)} million bags (MoM: ${pct(KL&&KL.london_bags_millions,KP&&KP.london_bags_millions)})
+
+Write as a professional 2-page report with bold section headers. Be specific with all numbers.`;
+    }
+
+    // ── Step 4: Send to Groq ──────────────────────────────────────
+    bodyEl.textContent = '⟳ Analysing with Groq / Llama 3.3 70B...';
     let resp;
     try {
       resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -945,18 +960,18 @@ ${context}`;
         body: JSON.stringify({
           model: 'llama-3.3-70b-versatile',
           messages: [{ role: 'user', content: prompt }],
-          max_tokens: 1500,
+          max_tokens: 1800,
           temperature: 0.2
         })
       });
-    } catch(e) {
+    } catch(e){
       bodyEl.textContent = '❌ Network error: ' + e.message;
       return;
     }
 
     if(!resp.ok){
       const err = await resp.json().catch(()=>({}));
-      const msg = err.error&&err.error.message || 'HTTP '+resp.status;
+      const msg = err.error&&err.error.message || 'HTTP ' + resp.status;
       bodyEl.textContent = '❌ Groq API error: ' + msg;
       if(resp.status===401||resp.status===403){
         sessionStorage.removeItem('groqKey');
@@ -967,23 +982,30 @@ ${context}`;
       return;
     }
 
-    const data = await resp.json();
-    // Groq uses OpenAI-compatible response format
-    const text = data.choices &&
-                 data.choices[0] &&
-                 data.choices[0].message &&
-                 data.choices[0].message.content;
+    // ── Step 5: Display result ────────────────────────────────────
+    const data  = await resp.json();
+    const text  = data.choices &&
+                  data.choices[0] &&
+                  data.choices[0].message &&
+                  data.choices[0].message.content;
 
     if(text){
       bodyEl.className   = 'ico-body';
       bodyEl.textContent = text.trim();
+      // Show source indicator
+      const src = document.createElement('div');
+      src.style.cssText = 'font-size:9px;color:var(--text3);font-family:IBM Plex Mono,monospace;margin-top:10px;padding-top:8px;border-top:1px solid var(--border)';
+      src.textContent = pdfText.length > 500
+        ? '✦ Analysis based on full ICO PDF text (' + Math.round(pdfText.length/1000) + 'k chars) via Groq / Llama 3.3 70B'
+        : '✦ Analysis based on CSV data (PDF text not yet available — run pipeline to generate)';
+      bodyEl.appendChild(src);
     } else {
-      bodyEl.textContent = '⚠ Empty response from Gemini. Try again.';
+      bodyEl.textContent = '⚠ Empty response from Groq. Try again.';
     }
 
   } catch(e){
-    console.error('Gemini summary failed:', e);
-    bodyEl.textContent = '❌ Request failed: '+e.message+'. Check your key and try again.';
+    console.error('Groq summary failed:', e);
+    bodyEl.textContent = '❌ Failed: ' + e.message;
   }
 }
 
