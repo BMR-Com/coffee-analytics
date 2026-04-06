@@ -6,600 +6,504 @@
 <title>Coffee Market Analytics</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#08090c; --bg2:#0f1117; --bg3:#161b24;
-  --border:#1d2535; --border2:#283040;
-  --text:#dde4f0; --text2:#7a8899; --text3:#3d4d60;
-  --accent:#e8a020; --green:#22c55e; --red:#ef4444;
-  --c0:#e8a020; --c1:#3b82f6; --c2:#22c55e;
-  --c3:#ef4444; --c4:#a78bfa; --c5:#06b6d4;
-  --c6:#f97316; --c7:#ec4899; --c8:#84cc16; --c9:#14b8a6;
-  --c10:#e8a020; --c11:#3b82f6; --c12:#22c55e;
+  --bg:#08090c;--bg2:#0f1117;--bg3:#161b24;
+  --border:#1d2535;--border2:#283040;
+  --text:#dde4f0;--text2:#7a8899;--text3:#3d4d60;
+  --accent:#e8a020;--green:#22c55e;--red:#ef4444;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text);font-size:13px;min-height:100vh}
-
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text);font-size:13px}
 /* HEADER */
-.hdr{height:52px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:200;background:var(--bg)}
-.logo{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;color:var(--accent);letter-spacing:.06em}
+.hdr{height:52px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:var(--bg);position:sticky;top:0;z-index:100}
+.logo{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;color:var(--accent)}
 .logo span{color:var(--text3);font-weight:400}
-.hdr-right{display:flex;align-items:center;gap:12px}
-.upd{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text3)}
+.upd{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text3);display:flex;align-items:center;gap:8px}
 .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-
-/* KPI BAR */
-.kpi-bar{display:grid;grid-template-columns:repeat(9,1fr);border-bottom:1px solid var(--border);background:var(--bg2)}
-.kpi{padding:14px 16px;border-right:1px solid var(--border);cursor:default}
+/* KPI */
+.kpi-bar{display:grid;grid-template-columns:repeat(9,1fr);border-bottom:1px solid var(--border)}
+.kpi{padding:12px 14px;border-right:1px solid var(--border)}
 .kpi:last-child{border-right:none}
-.kpi-lbl{font-size:9px;font-weight:600;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
-.kpi-val{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;color:var(--text);line-height:1}
-.kpi-unit{font-size:10px;color:var(--text3);margin-left:2px}
-.kpi-chg{font-family:'IBM Plex Mono',monospace;font-size:10px;margin-top:4px}
-.pos{color:var(--green)} .neg{color:var(--red)} .neu{color:var(--text3)}
-
+.kl{font-size:9px;font-weight:600;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px}
+.kv{font-family:'IBM Plex Mono',monospace;font-size:17px;font-weight:600;line-height:1}
+.ku{font-size:9px;color:var(--text3);margin-left:2px}
+.kc{font-family:'IBM Plex Mono',monospace;font-size:10px;margin-top:3px}
+.pos{color:var(--green)}.neg{color:var(--red)}.neu{color:var(--text3)}
 /* CONTROLS */
-.ctrl{height:38px;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:0;background:var(--bg)}
-.ctrl-lbl{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:.1em;margin-right:8px}
-.rbtn{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:4px 14px;border:1px solid transparent;background:none;color:var(--text2);cursor:pointer;transition:all .15s;letter-spacing:.04em}
-.rbtn:hover{color:var(--text);border-color:var(--border2)}
-.rbtn.on{color:var(--accent);border-color:var(--accent);background:rgba(232,160,32,.08)}
-.ctrl-info{margin-left:16px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text3)}
-
+.ctrl{height:36px;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:2px;background:var(--bg)}
+.cl{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:.1em;margin-right:6px}
+.rb{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:3px 12px;border:1px solid transparent;background:none;color:var(--text2);cursor:pointer;transition:all .12s}
+.rb:hover{color:var(--text);border-color:var(--border2)}
+.rb.on{color:var(--accent);border-color:var(--accent);background:rgba(232,160,32,.08)}
+.ci{margin-left:12px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text3)}
 /* TABS */
-.tabs{display:flex;border-bottom:1px solid var(--border);background:var(--bg);padding:0 24px;overflow-x:auto}
-.tab{font-size:11px;font-weight:500;padding:10px 18px;border:none;border-bottom:2px solid transparent;background:none;color:var(--text3);cursor:pointer;white-space:nowrap;letter-spacing:.05em;text-transform:uppercase;transition:all .15s}
+.tabs{display:flex;border-bottom:1px solid var(--border);padding:0 20px;background:var(--bg);overflow-x:auto}
+.tab{font-size:11px;font-weight:500;padding:10px 16px;border:none;border-bottom:2px solid transparent;background:none;color:var(--text3);cursor:pointer;white-space:nowrap;letter-spacing:.05em;text-transform:uppercase;transition:all .12s}
 .tab:hover{color:var(--text2)}
 .tab.on{color:var(--accent);border-bottom-color:var(--accent)}
-
-/* CONTENT */
-.content{padding:24px;max-width:1400px;margin:0 auto}
-.tab-pane{display:none}
-.tab-pane.on{display:block}
-
-/* SECTION LABEL */
-.sec-lbl{font-size:9px;font-weight:600;color:var(--text3);letter-spacing:.14em;text-transform:uppercase;padding:12px 0 10px;border-bottom:1px solid var(--border);margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.sec-lbl::before{content:'';width:3px;height:12px;background:var(--accent);flex-shrink:0}
-
+/* PANE */
+.pane{display:none;padding:20px;max-width:1400px;margin:0 auto}
+.pane.on{display:block}
+/* SECTION */
+.sec{font-size:9px;font-weight:600;color:var(--text3);letter-spacing:.14em;text-transform:uppercase;padding:10px 0 8px;border-bottom:1px solid var(--border);margin-bottom:14px;margin-top:20px;display:flex;align-items:center;gap:8px}
+.sec:first-child{margin-top:0}
+.sec::before{content:'';width:3px;height:11px;background:var(--accent);flex-shrink:0}
 /* CHART CARDS */
-.chart-row{margin-bottom:14px}
-.chart-2col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
-.ccard{background:var(--bg2);border:1px solid var(--border);padding:16px}
-.ccard:hover{border-color:var(--border2)}
-.ctitle{font-size:10px;font-weight:600;color:var(--text2);letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px}
-.csub{font-size:9px;color:var(--text3);margin-bottom:12px}
-.cwrap{position:relative}
-
+.crow{margin-bottom:12px}
+.c2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.cc{background:var(--bg2);border:1px solid var(--border);padding:14px}
+.cc:hover{border-color:var(--border2)}
+.ct{font-size:10px;font-weight:600;color:var(--text2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px}
+.cs{font-size:9px;color:var(--text3);margin-bottom:10px}
 /* LEGEND */
-.leg{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
+.leg{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
 .li{display:flex;align-items:center;gap:5px;font-size:9px;color:var(--text2)}
-.ld{width:16px;height:2px;border-radius:1px;flex-shrink:0}
-
+.ld{width:14px;height:2px;border-radius:1px;flex-shrink:0}
 /* SCROLLBAR */
-::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
-
-@media(max-width:900px){.kpi-bar{grid-template-columns:repeat(3,1fr)}.chart-2col{grid-template-columns:1fr}}
+@media(max-width:900px){.kpi-bar{grid-template-columns:repeat(3,1fr)}.c2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <div class="hdr">
   <div class="logo">☕ COFFEE<span>/ANALYTICS</span></div>
-  <div class="hdr-right">
-    <div class="upd" id="updEl">Loading...</div>
-    <div class="dot"></div>
-  </div>
+  <div class="upd"><span id="updEl">Loading...</span><div class="dot"></div></div>
 </div>
 
-<!-- KPI BAR -->
-<div class="kpi-bar">
-  <div class="kpi"><div class="kpi-lbl">I-CIP</div><div class="kpi-val" id="v0">—<span class="kpi-unit">¢/lb</span></div><div class="kpi-chg neu" id="c0">—</div></div>
-  <div class="kpi"><div class="kpi-lbl">Colombian Milds</div><div class="kpi-val" id="v1">—<span class="kpi-unit">¢/lb</span></div><div class="kpi-chg neu" id="c1">—</div></div>
-  <div class="kpi"><div class="kpi-lbl">Other Milds</div><div class="kpi-val" id="v2">—<span class="kpi-unit">¢/lb</span></div><div class="kpi-chg neu" id="c2">—</div></div>
-  <div class="kpi"><div class="kpi-lbl">Brazilian Naturals</div><div class="kpi-val" id="v3">—<span class="kpi-unit">¢/lb</span></div><div class="kpi-chg neu" id="c3">—</div></div>
-  <div class="kpi"><div class="kpi-lbl">Robustas</div><div class="kpi-val" id="v4">—<span class="kpi-unit">¢/lb</span></div><div class="kpi-chg neu" id="c4">—</div></div>
-  <div class="kpi"><div class="kpi-lbl">NY ICE</div><div class="kpi-val" id="v5">—<span class="kpi-unit">¢/lb</span></div><div class="kpi-chg neu" id="c5">—</div></div>
-  <div class="kpi"><div class="kpi-lbl">London ICE</div><div class="kpi-val" id="v6">—<span class="kpi-unit">¢/lb</span></div><div class="kpi-chg neu" id="c6">—</div></div>
-  <div class="kpi"><div class="kpi-lbl">NY Stocks</div><div class="kpi-val" id="v7">—<span class="kpi-unit">m bags</span></div><div class="kpi-chg neu" id="c7">—</div></div>
-  <div class="kpi"><div class="kpi-lbl">London Stocks</div><div class="kpi-val" id="v8">—<span class="kpi-unit">m bags</span></div><div class="kpi-chg neu" id="c8">—</div></div>
+<div class="kpi-bar" id="kpiBar">
+  <div class="kpi"><div class="kl">I-CIP</div><div class="kv" id="kv0">—<span class="ku">¢/lb</span></div><div class="kc neu" id="kc0">—</div></div>
+  <div class="kpi"><div class="kl">Colombian Milds</div><div class="kv" id="kv1">—<span class="ku">¢/lb</span></div><div class="kc neu" id="kc1">—</div></div>
+  <div class="kpi"><div class="kl">Other Milds</div><div class="kv" id="kv2">—<span class="ku">¢/lb</span></div><div class="kc neu" id="kc2">—</div></div>
+  <div class="kpi"><div class="kl">Brazilian Naturals</div><div class="kv" id="kv3">—<span class="ku">¢/lb</span></div><div class="kc neu" id="kc3">—</div></div>
+  <div class="kpi"><div class="kl">Robustas</div><div class="kv" id="kv4">—<span class="ku">¢/lb</span></div><div class="kc neu" id="kc4">—</div></div>
+  <div class="kpi"><div class="kl">NY ICE</div><div class="kv" id="kv5">—<span class="ku">¢/lb</span></div><div class="kc neu" id="kc5">—</div></div>
+  <div class="kpi"><div class="kl">London ICE</div><div class="kv" id="kv6">—<span class="ku">¢/lb</span></div><div class="kc neu" id="kc6">—</div></div>
+  <div class="kpi"><div class="kl">NY Stocks</div><div class="kv" id="kv7">—<span class="ku">m bags</span></div><div class="kc neu" id="kc7">—</div></div>
+  <div class="kpi"><div class="kl">London Stocks</div><div class="kv" id="kv8">—<span class="ku">m bags</span></div><div class="kc neu" id="kc8">—</div></div>
 </div>
 
-<!-- CONTROLS -->
 <div class="ctrl">
-  <span class="ctrl-lbl">RANGE</span>
-  <button class="rbtn" onclick="setRange(12,this)">1Y</button>
-  <button class="rbtn" onclick="setRange(36,this)">3Y</button>
-  <button class="rbtn" onclick="setRange(60,this)">5Y</button>
-  <button class="rbtn on" id="btnAll" onclick="setRange(0,this)">ALL</button>
-  <span class="ctrl-info" id="rangeInfo"></span>
+  <span class="cl">RANGE</span>
+  <button class="rb" onclick="setRange(12,this)">1Y</button>
+  <button class="rb" onclick="setRange(36,this)">3Y</button>
+  <button class="rb" onclick="setRange(60,this)">5Y</button>
+  <button class="rb on" onclick="setRange(0,this)">ALL</button>
+  <span class="ci" id="rangeInfo"></span>
 </div>
 
-<!-- TABS -->
 <div class="tabs">
-  <button class="tab on" onclick="showTab('prices',this)">Prices</button>
-  <button class="tab" onclick="showTab('diffs',this)">Differentials</button>
-  <button class="tab" onclick="showTab('season',this)">Seasonality</button>
-  <button class="tab" onclick="showTab('stocks',this)">Cert. Stocks</button>
-  <button class="tab" onclick="showTab('exports',this)">Exports</button>
+  <button class="tab on" onclick="switchTab('prices',this)">Prices</button>
+  <button class="tab" onclick="switchTab('diffs',this)">Differentials</button>
+  <button class="tab" onclick="switchTab('season',this)">Seasonality</button>
+  <button class="tab" onclick="switchTab('stocks',this)">Cert. Stocks</button>
+  <button class="tab" onclick="switchTab('exports',this)">Exports</button>
 </div>
 
-<!-- TAB: PRICES -->
-<div id="tab-prices" class="tab-pane on">
-<div class="content">
-  <div class="sec-lbl">All 7 Indicators — Combined</div>
-  <div class="chart-row ccard">
-    <div class="ctitle">I-CIP · Colombian Milds · Other Milds · Brazilian Naturals · Robustas · NY ICE · London ICE</div>
-    <div class="csub">US cents per lb — monthly average</div>
-    <div class="cwrap"><canvas id="ch_all" height="70"></canvas></div>
-    <div class="leg" id="leg_all"></div>
-  </div>
-  <div class="sec-lbl">Individual Price Indicators</div>
-  <div class="chart-row ccard"><div class="ctitle">ICO Composite Indicator Price (I-CIP)</div><div class="csub">US cents/lb</div><div class="cwrap"><canvas id="ch_icip" height="55"></canvas></div></div>
-  <div class="chart-row ccard"><div class="ctitle">Colombian Milds</div><div class="csub">US cents/lb</div><div class="cwrap"><canvas id="ch_col" height="55"></canvas></div></div>
-  <div class="chart-row ccard"><div class="ctitle">Other Milds</div><div class="csub">US cents/lb</div><div class="cwrap"><canvas id="ch_other" height="55"></canvas></div></div>
-  <div class="chart-row ccard"><div class="ctitle">Brazilian Naturals</div><div class="csub">US cents/lb</div><div class="cwrap"><canvas id="ch_braz" height="55"></canvas></div></div>
-  <div class="chart-row ccard"><div class="ctitle">Robustas</div><div class="csub">US cents/lb</div><div class="cwrap"><canvas id="ch_rob" height="55"></canvas></div></div>
-  <div class="chart-row ccard"><div class="ctitle">New York ICE Futures (2nd + 3rd position)</div><div class="csub">US cents/lb</div><div class="cwrap"><canvas id="ch_ny" height="55"></canvas></div></div>
-  <div class="chart-row ccard"><div class="ctitle">London ICE Futures (2nd + 3rd position)</div><div class="csub">US cents/lb</div><div class="cwrap"><canvas id="ch_lon" height="55"></canvas></div></div>
-</div>
+<!-- PRICES TAB -->
+<div id="pane-prices" class="pane on">
+  <div class="sec">All 7 Indicators Combined</div>
+  <div class="crow cc"><div class="ct">I-CIP · Colombian Milds · Other Milds · Brazilian Naturals · Robustas · NY ICE · London ICE</div><div class="cs">US cents per lb</div><canvas id="P_all" height="70"></canvas><div class="leg" id="L_all"></div></div>
+  <div class="sec">Individual Indicators</div>
+  <div class="crow cc"><div class="ct">ICO Composite Indicator Price (I-CIP)</div><div class="cs">US cents/lb</div><canvas id="P_icip" height="55"></canvas></div>
+  <div class="crow cc"><div class="ct">Colombian Milds</div><div class="cs">US cents/lb</div><canvas id="P_col" height="55"></canvas></div>
+  <div class="crow cc"><div class="ct">Other Milds</div><div class="cs">US cents/lb</div><canvas id="P_other" height="55"></canvas></div>
+  <div class="crow cc"><div class="ct">Brazilian Naturals</div><div class="cs">US cents/lb</div><canvas id="P_braz" height="55"></canvas></div>
+  <div class="crow cc"><div class="ct">Robustas</div><div class="cs">US cents/lb</div><canvas id="P_rob" height="55"></canvas></div>
+  <div class="crow cc"><div class="ct">New York ICE Futures</div><div class="cs">US cents/lb — 2nd and 3rd position average</div><canvas id="P_ny" height="55"></canvas></div>
+  <div class="crow cc"><div class="ct">London ICE Futures</div><div class="cs">US cents/lb — 2nd and 3rd position average</div><canvas id="P_lon" height="55"></canvas></div>
 </div>
 
-<!-- TAB: DIFFERENTIALS -->
-<div id="tab-diffs" class="tab-pane">
-<div class="content">
-  <div class="sec-lbl">Price Differentials vs Futures — Over Time (US cents/lb)</div>
-  <div class="chart-row ccard"><div class="ctitle">Colombian Milds − NY ICE</div><div class="csub">Positive = Colombian Milds trading above NY futures</div><div class="cwrap"><canvas id="ch_d1" height="55"></canvas></div></div>
-  <div class="chart-row ccard"><div class="ctitle">Other Milds − NY ICE</div><div class="csub">Positive = Other Milds trading above NY futures</div><div class="cwrap"><canvas id="ch_d2" height="55"></canvas></div></div>
-  <div class="chart-row ccard"><div class="ctitle">Brazilian Naturals − NY ICE</div><div class="csub">Positive = Brazilian Naturals trading above NY futures</div><div class="cwrap"><canvas id="ch_d3" height="55"></canvas></div></div>
-  <div class="chart-row ccard"><div class="ctitle">Robustas − London ICE</div><div class="csub">Positive = Robustas trading above London futures</div><div class="cwrap"><canvas id="ch_d4" height="55"></canvas></div></div>
-  <div class="chart-row ccard"><div class="ctitle">Arbitrage — NY ICE minus London ICE</div><div class="csub">Arabica–Robusta futures spread (US cents/lb)</div><div class="cwrap"><canvas id="ch_arb" height="55"></canvas></div></div>
-</div>
+<!-- DIFFERENTIALS TAB -->
+<div id="pane-diffs" class="pane">
+  <div class="sec">Price Differentials vs Futures (US cents/lb)</div>
+  <div class="crow cc"><div class="ct">Colombian Milds − NY ICE</div><div class="cs">Positive = trading above NY futures</div><canvas id="D_col" height="55"></canvas></div>
+  <div class="crow cc"><div class="ct">Other Milds − NY ICE</div><div class="cs">Positive = trading above NY futures</div><canvas id="D_other" height="55"></canvas></div>
+  <div class="crow cc"><div class="ct">Brazilian Naturals − NY ICE</div><div class="cs">Positive = trading above NY futures</div><canvas id="D_braz" height="55"></canvas></div>
+  <div class="crow cc"><div class="ct">Robustas − London ICE</div><div class="cs">Positive = trading above London futures</div><canvas id="D_rob" height="55"></canvas></div>
+  <div class="crow cc"><div class="ct">Arbitrage — NY ICE minus London ICE</div><div class="cs">Arabica–Robusta futures spread</div><canvas id="D_arb" height="55"></canvas></div>
 </div>
 
-<!-- TAB: SEASONALITY -->
-<div id="tab-season" class="tab-pane">
-<div class="content">
-  <div class="sec-lbl">Price Seasonality — Each line = one calendar year</div>
-  <div class="chart-2col">
-    <div class="ccard"><div class="ctitle">I-CIP Seasonality</div><div class="csub">US cents/lb by month</div><div class="cwrap"><canvas id="ss_icip" height="120"></canvas></div><div class="leg" id="leg_ss_icip"></div></div>
-    <div class="ccard"><div class="ctitle">Colombian Milds Seasonality</div><div class="csub">US cents/lb by month</div><div class="cwrap"><canvas id="ss_col" height="120"></canvas></div><div class="leg" id="leg_ss_col"></div></div>
+<!-- SEASONALITY TAB -->
+<div id="pane-season" class="pane">
+  <div class="sec">Price Seasonality — one line per calendar year</div>
+  <div class="c2">
+    <div class="cc"><div class="ct">I-CIP Seasonality</div><div class="cs">US cents/lb by month</div><canvas id="S_icip" height="120"></canvas><div class="leg" id="SL_icip"></div></div>
+    <div class="cc"><div class="ct">Colombian Milds Seasonality</div><div class="cs">US cents/lb by month</div><canvas id="S_col" height="120"></canvas><div class="leg" id="SL_col"></div></div>
   </div>
-  <div class="chart-2col">
-    <div class="ccard"><div class="ctitle">Other Milds Seasonality</div><div class="csub">US cents/lb by month</div><div class="cwrap"><canvas id="ss_other" height="120"></canvas></div><div class="leg" id="leg_ss_other"></div></div>
-    <div class="ccard"><div class="ctitle">Brazilian Naturals Seasonality</div><div class="csub">US cents/lb by month</div><div class="cwrap"><canvas id="ss_braz" height="120"></canvas></div><div class="leg" id="leg_ss_braz"></div></div>
+  <div class="c2">
+    <div class="cc"><div class="ct">Other Milds Seasonality</div><div class="cs">US cents/lb by month</div><canvas id="S_other" height="120"></canvas><div class="leg" id="SL_other"></div></div>
+    <div class="cc"><div class="ct">Brazilian Naturals Seasonality</div><div class="cs">US cents/lb by month</div><canvas id="S_braz" height="120"></canvas><div class="leg" id="SL_braz"></div></div>
   </div>
-  <div class="chart-2col">
-    <div class="ccard"><div class="ctitle">Robustas Seasonality</div><div class="csub">US cents/lb by month</div><div class="cwrap"><canvas id="ss_rob" height="120"></canvas></div><div class="leg" id="leg_ss_rob"></div></div>
-    <div class="ccard"><div class="ctitle">NY ICE Seasonality</div><div class="csub">US cents/lb by month</div><div class="cwrap"><canvas id="ss_ny" height="120"></canvas></div><div class="leg" id="leg_ss_ny"></div></div>
+  <div class="c2">
+    <div class="cc"><div class="ct">Robustas Seasonality</div><div class="cs">US cents/lb by month</div><canvas id="S_rob" height="120"></canvas><div class="leg" id="SL_rob"></div></div>
+    <div class="cc"><div class="ct">NY ICE Seasonality</div><div class="cs">US cents/lb by month</div><canvas id="S_ny" height="120"></canvas><div class="leg" id="SL_ny"></div></div>
   </div>
-  <div class="chart-2col">
-    <div class="ccard"><div class="ctitle">London ICE Seasonality</div><div class="csub">US cents/lb by month</div><div class="cwrap"><canvas id="ss_lon" height="120"></canvas></div><div class="leg" id="leg_ss_lon"></div></div>
-    <div class="ccard" style="visibility:hidden"></div>
+  <div class="c2">
+    <div class="cc"><div class="ct">London ICE Seasonality</div><div class="cs">US cents/lb by month</div><canvas id="S_lon" height="120"></canvas><div class="leg" id="SL_lon"></div></div>
+    <div class="cc" style="background:transparent;border-color:transparent"></div>
   </div>
-  <div class="sec-lbl">Differential Seasonality — Each line = one calendar year</div>
-  <div class="chart-2col">
-    <div class="ccard"><div class="ctitle">Colombian Milds − NY ICE Seasonality</div><div class="csub">US cents/lb by month</div><div class="cwrap"><canvas id="ss_d1" height="120"></canvas></div><div class="leg" id="leg_ss_d1"></div></div>
-    <div class="ccard"><div class="ctitle">Other Milds − NY ICE Seasonality</div><div class="csub">US cents/lb by month</div><div class="cwrap"><canvas id="ss_d2" height="120"></canvas></div><div class="leg" id="leg_ss_d2"></div></div>
+  <div class="sec">Differential Seasonality — one line per calendar year</div>
+  <div class="c2">
+    <div class="cc"><div class="ct">Colombian Milds − NY ICE Seasonality</div><div class="cs">US cents/lb by month</div><canvas id="S_d1" height="120"></canvas><div class="leg" id="SL_d1"></div></div>
+    <div class="cc"><div class="ct">Other Milds − NY ICE Seasonality</div><div class="cs">US cents/lb by month</div><canvas id="S_d2" height="120"></canvas><div class="leg" id="SL_d2"></div></div>
   </div>
-  <div class="chart-2col">
-    <div class="ccard"><div class="ctitle">Brazilian Naturals − NY ICE Seasonality</div><div class="csub">US cents/lb by month</div><div class="cwrap"><canvas id="ss_d3" height="120"></canvas></div><div class="leg" id="leg_ss_d3"></div></div>
-    <div class="ccard"><div class="ctitle">Robustas − London ICE Seasonality</div><div class="csub">US cents/lb by month</div><div class="cwrap"><canvas id="ss_d4" height="120"></canvas></div><div class="leg" id="leg_ss_d4"></div></div>
+  <div class="c2">
+    <div class="cc"><div class="ct">Brazilian Naturals − NY ICE Seasonality</div><div class="cs">US cents/lb by month</div><canvas id="S_d3" height="120"></canvas><div class="leg" id="SL_d3"></div></div>
+    <div class="cc"><div class="ct">Robustas − London ICE Seasonality</div><div class="cs">US cents/lb by month</div><canvas id="S_d4" height="120"></canvas><div class="leg" id="SL_d4"></div></div>
   </div>
-  <div class="chart-2col">
-    <div class="ccard"><div class="ctitle">Arbitrage (NY − London) Seasonality</div><div class="csub">US cents/lb by month</div><div class="cwrap"><canvas id="ss_arb" height="120"></canvas></div><div class="leg" id="leg_ss_arb"></div></div>
-    <div class="ccard" style="visibility:hidden"></div>
+  <div class="c2">
+    <div class="cc"><div class="ct">Arbitrage (NY − London) Seasonality</div><div class="cs">US cents/lb by month</div><canvas id="S_arb" height="120"></canvas><div class="leg" id="SL_arb"></div></div>
+    <div class="cc" style="background:transparent;border-color:transparent"></div>
   </div>
-</div>
 </div>
 
-<!-- TAB: CERT STOCKS -->
-<div id="tab-stocks" class="tab-pane">
-<div class="content">
-  <div class="sec-lbl">Certified Stocks — Over Time</div>
-  <div class="chart-row ccard"><div class="ctitle">New York — Certified Stocks</div><div class="csub">Million 60-kg bags</div><div class="cwrap"><canvas id="ch_nystk" height="55"></canvas></div></div>
-  <div class="chart-row ccard"><div class="ctitle">London — Certified Stocks</div><div class="csub">Million 60-kg bags</div><div class="cwrap"><canvas id="ch_lonstk" height="55"></canvas></div></div>
-  <div class="sec-lbl">Certified Stocks — Seasonality</div>
-  <div class="chart-2col">
-    <div class="ccard"><div class="ctitle">New York Stocks Seasonality</div><div class="csub">Million 60-kg bags by month</div><div class="cwrap"><canvas id="ss_nystk" height="120"></canvas></div><div class="leg" id="leg_ss_nystk"></div></div>
-    <div class="ccard"><div class="ctitle">London Stocks Seasonality</div><div class="csub">Million 60-kg bags by month</div><div class="cwrap"><canvas id="ss_lonstk" height="120"></canvas></div><div class="leg" id="leg_ss_lonstk"></div></div>
+<!-- STOCKS TAB -->
+<div id="pane-stocks" class="pane">
+  <div class="sec">Certified Stocks — Over Time</div>
+  <div class="crow cc"><div class="ct">New York Certified Stocks</div><div class="cs">Million 60-kg bags</div><canvas id="K_ny" height="55"></canvas></div>
+  <div class="crow cc"><div class="ct">London Certified Stocks</div><div class="cs">Million 60-kg bags</div><canvas id="K_lon" height="55"></canvas></div>
+  <div class="sec">Certified Stocks Seasonality — one line per calendar year</div>
+  <div class="c2">
+    <div class="cc"><div class="ct">New York Stocks Seasonality</div><div class="cs">Million bags by month</div><canvas id="K_sny" height="120"></canvas><div class="leg" id="KL_ny"></div></div>
+    <div class="cc"><div class="ct">London Stocks Seasonality</div><div class="cs">Million bags by month</div><canvas id="K_slon" height="120"></canvas><div class="leg" id="KL_lon"></div></div>
   </div>
-</div>
 </div>
 
-<!-- TAB: EXPORTS -->
-<div id="tab-exports" class="tab-pane">
-<div class="content">
-  <div class="sec-lbl">Exports — Over Time (thousand 60-kg bags)</div>
-  <div class="chart-row ccard"><div class="ctitle">Total Exports</div><div class="csub">Thousand 60-kg bags</div><div class="cwrap"><canvas id="ch_xtot" height="55"></canvas></div></div>
-  <div class="chart-row ccard"><div class="ctitle">Arabicas — Total</div><div class="csub">Thousand 60-kg bags</div><div class="cwrap"><canvas id="ch_xara" height="55"></canvas></div></div>
-  <div class="chart-row ccard"><div class="ctitle">Colombian Milds Exports</div><div class="csub">Thousand 60-kg bags</div><div class="cwrap"><canvas id="ch_xcol" height="55"></canvas></div></div>
-  <div class="chart-row ccard"><div class="ctitle">Other Milds Exports</div><div class="csub">Thousand 60-kg bags</div><div class="cwrap"><canvas id="ch_xoth" height="55"></canvas></div></div>
-  <div class="chart-row ccard"><div class="ctitle">Brazilian Naturals Exports</div><div class="csub">Thousand 60-kg bags</div><div class="cwrap"><canvas id="ch_xbra" height="55"></canvas></div></div>
-  <div class="chart-row ccard"><div class="ctitle">Robustas Exports</div><div class="csub">Thousand 60-kg bags</div><div class="cwrap"><canvas id="ch_xrob" height="55"></canvas></div></div>
-  <div class="sec-lbl">Exports — Seasonality (each line = one calendar year)</div>
-  <div class="chart-2col">
-    <div class="ccard"><div class="ctitle">Total Exports Seasonality</div><div class="csub">Thousand bags by month</div><div class="cwrap"><canvas id="xs_tot" height="120"></canvas></div><div class="leg" id="leg_xs_tot"></div></div>
-    <div class="ccard"><div class="ctitle">Arabicas Seasonality</div><div class="csub">Thousand bags by month</div><div class="cwrap"><canvas id="xs_ara" height="120"></canvas></div><div class="leg" id="leg_xs_ara"></div></div>
+<!-- EXPORTS TAB -->
+<div id="pane-exports" class="pane">
+  <div class="sec">Exports — Over Time (thousand 60-kg bags)</div>
+  <div class="crow cc"><div class="ct">Total Exports</div><div class="cs">Thousand 60-kg bags</div><canvas id="X_tot" height="55"></canvas></div>
+  <div class="crow cc"><div class="ct">Arabicas</div><div class="cs">Thousand 60-kg bags</div><canvas id="X_ara" height="55"></canvas></div>
+  <div class="crow cc"><div class="ct">Colombian Milds Exports</div><div class="cs">Thousand 60-kg bags</div><canvas id="X_col" height="55"></canvas></div>
+  <div class="crow cc"><div class="ct">Other Milds Exports</div><div class="cs">Thousand 60-kg bags</div><canvas id="X_oth" height="55"></canvas></div>
+  <div class="crow cc"><div class="ct">Brazilian Naturals Exports</div><div class="cs">Thousand 60-kg bags</div><canvas id="X_bra" height="55"></canvas></div>
+  <div class="crow cc"><div class="ct">Robustas Exports</div><div class="cs">Thousand 60-kg bags</div><canvas id="X_rob" height="55"></canvas></div>
+  <div class="sec">Exports Seasonality — one line per calendar year</div>
+  <div class="c2">
+    <div class="cc"><div class="ct">Total Exports Seasonality</div><div class="cs">Thousand bags by month</div><canvas id="XS_tot" height="120"></canvas><div class="leg" id="XL_tot"></div></div>
+    <div class="cc"><div class="ct">Arabicas Seasonality</div><div class="cs">Thousand bags by month</div><canvas id="XS_ara" height="120"></canvas><div class="leg" id="XL_ara"></div></div>
   </div>
-  <div class="chart-2col">
-    <div class="ccard"><div class="ctitle">Colombian Milds Seasonality</div><div class="csub">Thousand bags by month</div><div class="cwrap"><canvas id="xs_col" height="120"></canvas></div><div class="leg" id="leg_xs_col"></div></div>
-    <div class="ccard"><div class="ctitle">Other Milds Seasonality</div><div class="csub">Thousand bags by month</div><div class="cwrap"><canvas id="xs_oth" height="120"></canvas></div><div class="leg" id="leg_xs_oth"></div></div>
+  <div class="c2">
+    <div class="cc"><div class="ct">Colombian Milds Seasonality</div><div class="cs">Thousand bags by month</div><canvas id="XS_col" height="120"></canvas><div class="leg" id="XL_col"></div></div>
+    <div class="cc"><div class="ct">Other Milds Seasonality</div><div class="cs">Thousand bags by month</div><canvas id="XS_oth" height="120"></canvas><div class="leg" id="XL_oth"></div></div>
   </div>
-  <div class="chart-2col">
-    <div class="ccard"><div class="ctitle">Brazilian Naturals Seasonality</div><div class="csub">Thousand bags by month</div><div class="cwrap"><canvas id="xs_bra" height="120"></canvas></div><div class="leg" id="leg_xs_bra"></div></div>
-    <div class="ccard"><div class="ctitle">Robustas Seasonality</div><div class="csub">Thousand bags by month</div><div class="cwrap"><canvas id="xs_rob" height="120"></canvas></div><div class="leg" id="leg_xs_rob"></div></div>
+  <div class="c2">
+    <div class="cc"><div class="ct">Brazilian Naturals Seasonality</div><div class="cs">Thousand bags by month</div><canvas id="XS_bra" height="120"></canvas><div class="leg" id="XL_bra"></div></div>
+    <div class="cc"><div class="ct">Robustas Seasonality</div><div class="cs">Thousand bags by month</div><canvas id="XS_rob" height="120"></canvas><div class="leg" id="XL_rob"></div></div>
   </div>
-</div>
 </div>
 
 <script>
-// ═══════════════════════════════════════════════
-// DATA & STATE
-// ═══════════════════════════════════════════════
-const RAW = 'https://raw.githubusercontent.com/BMR-Com/coffee-analytics/main/data/csv/';
-let DATA = { prices:[], exports:[], stocks:[] };
-let rangeMo = 0; // 0=all
-let charts  = {};
+// ─── CONFIG ───────────────────────────────────────────────────────
+const BASE = 'https://raw.githubusercontent.com/BMR-Com/coffee-analytics/main/data/csv/';
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const PAL = ['#e8a020','#3b82f6','#22c55e','#ef4444','#a78bfa','#06b6d4','#f97316','#ec4899','#84cc16','#14b8a6','#fb923c','#818cf8','#4ade80','#f87171','#c084fc'];
 
-const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+// ─── STATE ────────────────────────────────────────────────────────
+let DB = { prices:[], exports:[], stocks:[] };
+let rangeMo = 0;          // 0=ALL, 12=1Y, 36=3Y, 60=5Y
+let activeTab = 'prices';
+let CH = {};              // chart registry
 
-// Season palette — enough for 15 years
-const PAL = [
-  '#e8a020','#3b82f6','#22c55e','#ef4444','#a78bfa',
-  '#06b6d4','#f97316','#ec4899','#84cc16','#14b8a6',
-  '#fb923c','#818cf8','#4ade80','#f87171','#c084fc'
-];
+// ─── CHART HELPERS ───────────────────────────────────────────────
+const GRID_CLR  = '#1d2535';
+const TIP_CFG   = { backgroundColor:'#0f1117', borderColor:'#283040', borderWidth:1, titleColor:'#7a8899', bodyColor:'#dde4f0', padding:10, cornerRadius:0 };
 
-// ═══════════════════════════════════════════════
-// CHART FACTORY
-// ═══════════════════════════════════════════════
-const GRID = '#1d2535';
-const TOOLTIP = {
-  backgroundColor:'#0f1117', borderColor:'#283040', borderWidth:1,
-  titleColor:'#7a8899', bodyColor:'#dde4f0', padding:10, cornerRadius:0
-};
-
-function baseOpts(extra){
+function mkOpts(extra){
   return Object.assign({
     responsive:true, maintainAspectRatio:true, animation:false,
     elements:{ point:{radius:0,hoverRadius:4}, line:{tension:.3,borderWidth:1.8} },
     interaction:{ mode:'index', intersect:false },
-    plugins:{ legend:{display:false}, tooltip:Object.assign({mode:'index',intersect:false},TOOLTIP) },
+    plugins:{ legend:{display:false}, tooltip:Object.assign({},TIP_CFG,{mode:'index',intersect:false}) },
     scales:{
-      x:{ grid:{color:GRID,drawBorder:false}, ticks:{color:'#3d4d60',maxTicksLimit:14,maxRotation:0}, border:{display:false} },
-      y:{ grid:{color:GRID,drawBorder:false}, ticks:{color:'#3d4d60',maxTicksLimit:6}, border:{display:false} }
+      x:{ grid:{color:GRID_CLR,drawBorder:false}, ticks:{color:'#3d4d60',maxTicksLimit:16,maxRotation:0}, border:{display:false} },
+      y:{ grid:{color:GRID_CLR,drawBorder:false}, ticks:{color:'#3d4d60',maxTicksLimit:6}, border:{display:false} }
     }
-  }, extra||{});
+  }, extra || {});
 }
 
-function makeChart(id, type, labels, datasets, extraOpts){
-  if(charts[id]) charts[id].destroy();
+function mkSeasonOpts(){
+  return mkOpts({
+    scales:{
+      x:{ grid:{color:GRID_CLR,drawBorder:false}, ticks:{color:'#3d4d60',maxRotation:0}, border:{display:false} },
+      y:{ grid:{color:GRID_CLR,drawBorder:false}, ticks:{color:'#3d4d60',maxTicksLimit:6}, border:{display:false} }
+    }
+  });
+}
+
+function draw(id, labels, datasets, opts){
   const ctx = document.getElementById(id);
   if(!ctx) return;
-  charts[id] = new Chart(ctx, {
-    type: type,
-    data: { labels, datasets },
-    options: baseOpts(extraOpts)
-  });
+  if(CH[id]){ CH[id].destroy(); delete CH[id]; }
+  CH[id] = new Chart(ctx, { type:'line', data:{labels, datasets}, options: opts || mkOpts() });
 }
 
-function line(id, labels, datasets, extra){ makeChart(id,'line',labels,datasets,extra); }
-
-function mkDs(label, data, color, extra){
-  return Object.assign({label,data,borderColor:color,backgroundColor:'transparent',
-    borderWidth:1.8,tension:.3,pointRadius:0,pointHoverRadius:4,spanGaps:false}, extra||{});
-}
-
-function mkFill(label, data, color){
+function ds(label, data, color, fill){
   const hex = color.replace('#','');
-  const r=parseInt(hex.substring(0,2),16),g=parseInt(hex.substring(2,4),16),b=parseInt(hex.substring(4,6),16);
-  return {label,data,borderColor:color,backgroundColor:`rgba(${r},${g},${b},.08)`,
-    fill:true,borderWidth:1.8,tension:.3,pointRadius:0,pointHoverRadius:4,spanGaps:false};
-}
-
-function setLegend(id, items){
-  const el = document.getElementById(id);
-  if(!el) return;
-  el.innerHTML = items.map(({color,label})=>
-    `<div class="li"><div class="ld" style="background:${color}"></div>${label}</div>`
-  ).join('');
-}
-
-// ═══════════════════════════════════════════════
-// RANGE FILTER
-// ═══════════════════════════════════════════════
-function filterTime(rows, key){
-  const sorted = [...rows].sort((a,b)=>a[key].localeCompare(b[key]));
-  if(!rangeMo) return sorted;
-  return sorted.slice(-rangeMo);
-}
-
-// For seasonality: get last N calendar years based on range
-// rangeMo=12→last 1 yr, 36→3, 60→5, 0→all
-function seasonYears(allYears){
-  const sorted = [...new Set(allYears)].sort();
-  if(!rangeMo) return sorted;
-  const nYears = rangeMo===12?1 : rangeMo===36?3 : rangeMo===60?5 : sorted.length;
-  return sorted.slice(-nYears);
-}
-
-// ═══════════════════════════════════════════════
-// KPI UPDATE
-// ═══════════════════════════════════════════════
-function kpi(vidx, val, cidx, pct, dec){
-  dec = dec||2;
-  const vEl = document.getElementById('v'+vidx);
-  const cEl = document.getElementById('c'+cidx);
-  if(!vEl||val==null) return;
-  const parts = vEl.innerHTML.split('<span');
-  vEl.innerHTML = parseFloat(val).toFixed(dec) + (parts[1]?'<span'+parts[1]:'');
-  if(!cEl) return;
-  if(pct==null){ cEl.textContent='—'; cEl.className='kpi-chg neu'; return; }
-  const p = parseFloat(pct).toFixed(1);
-  cEl.textContent = (p>0?'▲':'▼')+' '+Math.abs(p)+'% MoM';
-  cEl.className   = 'kpi-chg '+(p>0?'pos':'neg');
-}
-
-function pct(a,b){ return (a!=null&&b!=null&&b!==0) ? ((a-b)/b*100).toFixed(2) : null; }
-
-// ═══════════════════════════════════════════════
-// SEASONALITY HELPER
-// ═══════════════════════════════════════════════
-function buildSeason(rows, monthCol, valueCol, years){
-  // group: { year: { month(1-12): value } }
-  const g = {};
-  rows.forEach(r=>{
-    if(r[monthCol]==null||r[valueCol]==null||isNaN(r[valueCol])) return;
-    const [yr,mo] = r[monthCol].split('-');
-    if(!g[yr]) g[yr]={};
-    g[yr][parseInt(mo)] = parseFloat(r[valueCol]);
-  });
-  // build datasets only for requested years
-  return years.filter(yr=>g[yr]).map((yr,i)=>({
-    label: yr,
-    data: MON.map((_,mi)=>{
-      const v = g[yr]?.[mi+1];
-      return v!=null ? v : null;
-    }),
-    borderColor: PAL[i%PAL.length],
-    backgroundColor:'transparent',
-    borderWidth:1.6, tension:.3, pointRadius:0, pointHoverRadius:4,
-    spanGaps:false // partial year stops where data ends
-  }));
-}
-
-function seasonOpts(){
+  const r=parseInt(hex.slice(0,2),16), g=parseInt(hex.slice(2,4),16), b=parseInt(hex.slice(4,6),16);
   return {
-    scales:{
-      x:{ grid:{color:GRID,drawBorder:false}, ticks:{color:'#3d4d60',maxRotation:0}, border:{display:false} },
-      y:{ grid:{color:GRID,drawBorder:false}, ticks:{color:'#3d4d60',maxTicksLimit:6}, border:{display:false} }
-    }
+    label, data, borderColor:color,
+    backgroundColor: fill ? `rgba(${r},${g},${b},.07)` : 'transparent',
+    fill: !!fill, borderWidth:1.8, tension:.3, pointRadius:0, pointHoverRadius:4, spanGaps:false
   };
 }
 
-// ═══════════════════════════════════════════════
-// BUILD PRICE CHARTS
-// ═══════════════════════════════════════════════
+function legend(id, pairs){
+  const el = document.getElementById(id);
+  if(el) el.innerHTML = pairs.map(([c,l])=>`<div class="li"><div class="ld" style="background:${c}"></div>${l}</div>`).join('');
+}
+
+// ─── RANGE FILTER ────────────────────────────────────────────────
+// Returns rows sorted by key, sliced to last rangeMo months
+// rangeMo=0 means all data
+function applyRange(rows, key){
+  if(!rows || !rows.length) return [];
+  const sorted = rows.slice().sort((a,b) => String(a[key]).localeCompare(String(b[key])));
+  if(rangeMo === 0) return sorted;
+  return sorted.slice(-rangeMo);   // last N months
+}
+
+// ─── SEASON YEARS ────────────────────────────────────────────────
+// Returns calendar years to show in seasonality charts based on range
+// rangeMo=0→all years, 12→last 1 yr, 36→3, 60→5
+function getSeasonYears(allRows, monthCol){
+  const yrs = [...new Set(
+    allRows.map(r => r[monthCol] ? String(r[monthCol]).slice(0,4) : null).filter(Boolean)
+  )].sort();
+  if(rangeMo === 0) return yrs;
+  const n = rangeMo === 12 ? 1 : rangeMo === 36 ? 3 : rangeMo === 60 ? 5 : yrs.length;
+  return yrs.slice(-n);
+}
+
+// ─── SEASON BUILDER ──────────────────────────────────────────────
+// Groups rows by year+month, returns Chart.js datasets — one per year
+// partial years: line stops where data ends (spanGaps:false)
+function buildSeasonDatasets(allRows, monthCol, valueCol, years){
+  // Build lookup: year -> month(1-12) -> value
+  const lookup = {};
+  allRows.forEach(r => {
+    const m = r[monthCol];
+    const v = r[valueCol];
+    if(!m || v == null || isNaN(v)) return;
+    const yr = String(m).slice(0,4);
+    const mo = parseInt(String(m).slice(5,7));
+    if(!lookup[yr]) lookup[yr] = {};
+    lookup[yr][mo] = parseFloat(v);
+  });
+
+  return years.map((yr, i) => {
+    const ydata = lookup[yr] || {};
+    return {
+      label: yr,
+      data: MONTHS.map((_,mi) => {
+        const v = ydata[mi+1];
+        return (v !== undefined) ? v : null;
+      }),
+      borderColor: PAL[i % PAL.length],
+      backgroundColor: 'transparent',
+      borderWidth: 1.8, tension:.3, pointRadius:0, pointHoverRadius:4,
+      spanGaps: false  // CRITICAL: partial years stop at last data point
+    };
+  });
+}
+
+function drawSeason(id, legId, allRows, monthCol, valueCol){
+  const years = getSeasonYears(allRows, monthCol);
+  const datasets = buildSeasonDatasets(allRows, monthCol, valueCol, years);
+  draw(id, MONTHS, datasets, mkSeasonOpts());
+  if(legId) legend(legId, years.map((yr,i) => [PAL[i%PAL.length], yr]));
+}
+
+// ─── KPI UPDATE ──────────────────────────────────────────────────
+function setKPI(i, val, prev, dp){
+  dp = dp || 2;
+  const vEl = document.getElementById('kv'+i);
+  const cEl = document.getElementById('kc'+i);
+  if(!vEl || val == null) return;
+  const unit = vEl.querySelector('.ku');
+  vEl.childNodes[0].textContent = parseFloat(val).toFixed(dp);
+  if(unit) vEl.appendChild(unit);
+  if(!cEl) return;
+  if(prev == null){ cEl.textContent='—'; cEl.className='kc neu'; return; }
+  const p = ((val-prev)/prev*100);
+  cEl.textContent = (p>=0?'▲':'▼')+' '+Math.abs(p).toFixed(1)+'% MoM';
+  cEl.className   = 'kc '+(p>=0?'pos':'neg');
+}
+
+// ─── BUILD PRICES ────────────────────────────────────────────────
 function buildPrices(){
-  const rows = filterTime(DATA.prices,'price_month');
+  const rows = applyRange(DB.prices, 'price_month');
   if(!rows.length) return;
-  const lbl = rows.map(r=>r.price_month);
+  const lbl = rows.map(r => r.price_month);
 
-  const COLS = {
-    i_cip:'#e8a020', colombian_milds:'#3b82f6', other_milds:'#22c55e',
-    brazilian_naturals:'#ef4444', robustas:'#a78bfa',
-    new_york_ice:'#06b6d4', london_ice:'#f97316'
-  };
-  const NAMES = {
-    i_cip:'I-CIP', colombian_milds:'Colombian Milds', other_milds:'Other Milds',
-    brazilian_naturals:'Brazilian Naturals', robustas:'Robustas',
-    new_york_ice:'NY ICE', london_ice:'London ICE'
-  };
-
-  // KPIs
-  const last = rows[rows.length-1];
-  const prev = rows[rows.length-2];
-  if(last){
-    kpi(0,last.i_cip,            0, pct(last.i_cip,            prev&&prev.i_cip));
-    kpi(1,last.colombian_milds,  1, pct(last.colombian_milds,  prev&&prev.colombian_milds));
-    kpi(2,last.other_milds,      2, pct(last.other_milds,      prev&&prev.other_milds));
-    kpi(3,last.brazilian_naturals,3,pct(last.brazilian_naturals,prev&&prev.brazilian_naturals));
-    kpi(4,last.robustas,         4, pct(last.robustas,         prev&&prev.robustas));
-    kpi(5,last.new_york_ice,     5, pct(last.new_york_ice,     prev&&prev.new_york_ice));
-    kpi(6,last.london_ice,       6, pct(last.london_ice,       prev&&prev.london_ice));
-    document.getElementById('updEl').textContent = 'Latest: '+last.price_month;
+  // KPIs — always from latest data, not range-filtered
+  const all = DB.prices.slice().sort((a,b)=>String(a.price_month).localeCompare(String(b.price_month)));
+  const L = all[all.length-1], P = all[all.length-2];
+  if(L){
+    setKPI(0, L.i_cip,             P&&P.i_cip);
+    setKPI(1, L.colombian_milds,   P&&P.colombian_milds);
+    setKPI(2, L.other_milds,       P&&P.other_milds);
+    setKPI(3, L.brazilian_naturals,P&&P.brazilian_naturals);
+    setKPI(4, L.robustas,          P&&P.robustas);
+    setKPI(5, L.new_york_ice,      P&&P.new_york_ice);
+    setKPI(6, L.london_ice,        P&&P.london_ice);
+    document.getElementById('updEl').textContent = 'Latest: '+L.price_month;
   }
 
-  // Combined chart
-  const fields = Object.keys(COLS);
-  line('ch_all', lbl, fields.map(f=>mkDs(NAMES[f], rows.map(r=>r[f]), COLS[f])));
-  setLegend('leg_all', fields.map(f=>({color:COLS[f],label:NAMES[f]})));
+  const COLS = ['#e8a020','#3b82f6','#22c55e','#ef4444','#a78bfa','#06b6d4','#f97316'];
+  const FLDS = ['i_cip','colombian_milds','other_milds','brazilian_naturals','robustas','new_york_ice','london_ice'];
+  const NAMS = ['I-CIP','Colombian Milds','Other Milds','Brazilian Naturals','Robustas','NY ICE','London ICE'];
 
-  // Individual charts
+  // Combined
+  draw('P_all', lbl, FLDS.map((f,i) => ds(NAMS[i], rows.map(r=>r[f]), COLS[i], false)));
+  legend('L_all', NAMS.map((n,i) => [COLS[i], n]));
+
+  // Individual (fill under curve)
   const indiv = [
-    ['ch_icip','i_cip','#e8a020'],
-    ['ch_col','colombian_milds','#3b82f6'],
-    ['ch_other','other_milds','#22c55e'],
-    ['ch_braz','brazilian_naturals','#ef4444'],
-    ['ch_rob','robustas','#a78bfa'],
-    ['ch_ny','new_york_ice','#06b6d4'],
-    ['ch_lon','london_ice','#f97316'],
+    ['P_icip','i_cip',0],['P_col','colombian_milds',1],['P_other','other_milds',2],
+    ['P_braz','brazilian_naturals',3],['P_rob','robustas',4],
+    ['P_ny','new_york_ice',5],['P_lon','london_ice',6]
   ];
-  indiv.forEach(([id,field,color])=>{
-    line(id, lbl, [mkFill(NAMES[field]||field, rows.map(r=>r[field]), color)]);
-  });
+  indiv.forEach(([id,f,ci]) => draw(id, lbl, [ds(NAMS[ci], rows.map(r=>r[f]), COLS[ci], true)]));
 }
 
-// ═══════════════════════════════════════════════
-// BUILD DIFFERENTIAL CHARTS
-// ═══════════════════════════════════════════════
+// ─── BUILD DIFFS ─────────────────────────────────────────────────
 function buildDiffs(){
-  const rows = filterTime(DATA.prices,'price_month');
+  const rows = applyRange(DB.prices, 'price_month');
   if(!rows.length) return;
-  const lbl = rows.map(r=>r.price_month);
+  const lbl = rows.map(r => r.price_month);
+  const f = (a,b) => rows.map(r => (r[a]!=null&&r[b]!=null) ? +(r[a]-r[b]).toFixed(2) : null);
 
-  function diff(rows,a,b){ return rows.map(r=>(r[a]!=null&&r[b]!=null)?+(r[a]-r[b]).toFixed(2):null); }
-
-  const defs = [
-    ['ch_d1','Colombian Milds − NY ICE', diff(rows,'colombian_milds','new_york_ice'),'#e8a020'],
-    ['ch_d2','Other Milds − NY ICE',     diff(rows,'other_milds','new_york_ice'),    '#3b82f6'],
-    ['ch_d3','Brazilian Naturals − NY',  diff(rows,'brazilian_naturals','new_york_ice'),'#22c55e'],
-    ['ch_d4','Robustas − London ICE',    diff(rows,'robustas','london_ice'),          '#ef4444'],
-    ['ch_arb','NY ICE − London ICE',     diff(rows,'new_york_ice','london_ice'),      '#a78bfa'],
-  ];
-  defs.forEach(([id,label,data,color])=>{
-    line(id, lbl, [mkFill(label,data,color)]);
-  });
+  draw('D_col',   lbl, [ds('Col − NY',    f('colombian_milds','new_york_ice'),   '#e8a020', true)]);
+  draw('D_other', lbl, [ds('Other − NY',  f('other_milds','new_york_ice'),       '#3b82f6', true)]);
+  draw('D_braz',  lbl, [ds('Braz − NY',   f('brazilian_naturals','new_york_ice'),'#22c55e', true)]);
+  draw('D_rob',   lbl, [ds('Rob − LON',   f('robustas','london_ice'),            '#ef4444', true)]);
+  draw('D_arb',   lbl, [ds('Arb NY−LON',  f('new_york_ice','london_ice'),        '#a78bfa', true)]);
 }
 
-// ═══════════════════════════════════════════════
-// BUILD SEASONALITY CHARTS
-// ═══════════════════════════════════════════════
+// ─── BUILD SEASONALITY ───────────────────────────────────────────
 function buildSeason(){
-  const prices  = DATA.prices;
-  if(!prices.length) return;
+  const p = DB.prices;
+  if(!p.length) return;
 
-  // Get all years from prices data
-  const allYrs = [...new Set(prices.map(r=>r.price_month&&r.price_month.split('-')[0]))].filter(Boolean).sort();
-  const yrs    = seasonYears(allYrs);
-
-  // Build diff rows
-  const diffRows = prices.map(r=>({
+  // Build diff rows for seasonality (using ALL data, not range-filtered)
+  const diffRows = p.map(r => ({
     price_month: r.price_month,
-    d1: (r.colombian_milds!=null&&r.new_york_ice!=null)?+(r.colombian_milds-r.new_york_ice).toFixed(2):null,
-    d2: (r.other_milds!=null&&r.new_york_ice!=null)?+(r.other_milds-r.new_york_ice).toFixed(2):null,
-    d3: (r.brazilian_naturals!=null&&r.new_york_ice!=null)?+(r.brazilian_naturals-r.new_york_ice).toFixed(2):null,
-    d4: (r.robustas!=null&&r.london_ice!=null)?+(r.robustas-r.london_ice).toFixed(2):null,
-    arb:(r.new_york_ice!=null&&r.london_ice!=null)?+(r.new_york_ice-r.london_ice).toFixed(2):null,
+    d1: (r.colombian_milds!=null&&r.new_york_ice!=null)   ? +(r.colombian_milds-r.new_york_ice).toFixed(2)    : null,
+    d2: (r.other_milds!=null&&r.new_york_ice!=null)        ? +(r.other_milds-r.new_york_ice).toFixed(2)        : null,
+    d3: (r.brazilian_naturals!=null&&r.new_york_ice!=null) ? +(r.brazilian_naturals-r.new_york_ice).toFixed(2) : null,
+    d4: (r.robustas!=null&&r.london_ice!=null)             ? +(r.robustas-r.london_ice).toFixed(2)             : null,
+    arb:(r.new_york_ice!=null&&r.london_ice!=null)         ? +(r.new_york_ice-r.london_ice).toFixed(2)         : null,
   }));
 
-  function ss(id, legId, monthCol, valueCol, srcRows){
-    const ds = buildSeason(srcRows||prices, monthCol||'price_month', valueCol, yrs);
-    makeChart(id,'line',MON,ds,seasonOpts());
-    setLegend(legId, yrs.filter((_,i)=>ds[i]).map((yr,i)=>({color:PAL[i%PAL.length],label:yr})));
-  }
+  // Price seasonality
+  drawSeason('S_icip',  'SL_icip',  p,        'price_month','i_cip');
+  drawSeason('S_col',   'SL_col',   p,        'price_month','colombian_milds');
+  drawSeason('S_other', 'SL_other', p,        'price_month','other_milds');
+  drawSeason('S_braz',  'SL_braz',  p,        'price_month','brazilian_naturals');
+  drawSeason('S_rob',   'SL_rob',   p,        'price_month','robustas');
+  drawSeason('S_ny',    'SL_ny',    p,        'price_month','new_york_ice');
+  drawSeason('S_lon',   'SL_lon',   p,        'price_month','london_ice');
 
-  ss('ss_icip','leg_ss_icip', 'price_month','i_cip');
-  ss('ss_col', 'leg_ss_col',  'price_month','colombian_milds');
-  ss('ss_other','leg_ss_other','price_month','other_milds');
-  ss('ss_braz','leg_ss_braz', 'price_month','brazilian_naturals');
-  ss('ss_rob', 'leg_ss_rob',  'price_month','robustas');
-  ss('ss_ny',  'leg_ss_ny',   'price_month','new_york_ice');
-  ss('ss_lon', 'leg_ss_lon',  'price_month','london_ice');
-
-  ss('ss_d1',  'leg_ss_d1',   'price_month','d1', diffRows);
-  ss('ss_d2',  'leg_ss_d2',   'price_month','d2', diffRows);
-  ss('ss_d3',  'leg_ss_d3',   'price_month','d3', diffRows);
-  ss('ss_d4',  'leg_ss_d4',   'price_month','d4', diffRows);
-  ss('ss_arb', 'leg_ss_arb',  'price_month','arb',diffRows);
+  // Differential seasonality
+  drawSeason('S_d1',    'SL_d1',    diffRows, 'price_month','d1');
+  drawSeason('S_d2',    'SL_d2',    diffRows, 'price_month','d2');
+  drawSeason('S_d3',    'SL_d3',    diffRows, 'price_month','d3');
+  drawSeason('S_d4',    'SL_d4',    diffRows, 'price_month','d4');
+  drawSeason('S_arb',   'SL_arb',   diffRows, 'price_month','arb');
 }
 
-// ═══════════════════════════════════════════════
-// BUILD STOCK CHARTS
-// ═══════════════════════════════════════════════
+// ─── BUILD STOCKS ────────────────────────────────────────────────
 function buildStocks(){
-  if(!DATA.stocks.length) return;
-  // Deduplicate by stock_month (keep latest report)
+  if(!DB.stocks.length) return;
+
+  // Deduplicate: one row per stock_month (keep last)
   const byMo = {};
-  DATA.stocks.forEach(r=>{ byMo[r.stock_month]=r; });
-  const rows = Object.values(byMo).sort((a,b)=>a.stock_month.localeCompare(b.stock_month));
-  const filtered = filterTime(rows,'stock_month');
-  const lbl = filtered.map(r=>r.stock_month);
+  DB.stocks.forEach(r => { byMo[r.stock_month] = r; });
+  const all = Object.values(byMo).sort((a,b)=>String(a.stock_month).localeCompare(String(b.stock_month)));
+
+  const rows = applyRange(all, 'stock_month');
+  const lbl  = rows.map(r => r.stock_month);
 
   // KPIs
-  const last = filtered[filtered.length-1];
-  const prev = filtered[filtered.length-2];
-  if(last){
-    kpi(7,last.new_york_bags_millions, 7, pct(last.new_york_bags_millions,prev&&prev.new_york_bags_millions));
-    kpi(8,last.london_bags_millions,   8, pct(last.london_bags_millions,  prev&&prev.london_bags_millions));
+  const L = all[all.length-1], P = all[all.length-2];
+  if(L){
+    setKPI(7, L.new_york_bags_millions, P&&P.new_york_bags_millions);
+    setKPI(8, L.london_bags_millions,   P&&P.london_bags_millions);
   }
 
-  line('ch_nystk',  lbl, [mkFill('NY Stocks',     filtered.map(r=>r.new_york_bags_millions),'#e8a020')]);
-  line('ch_lonstk', lbl, [mkFill('London Stocks',  filtered.map(r=>r.london_bags_millions),  '#3b82f6')]);
+  draw('K_ny',  lbl, [ds('NY Stocks',  rows.map(r=>r.new_york_bags_millions),'#e8a020', true)]);
+  draw('K_lon', lbl, [ds('LON Stocks', rows.map(r=>r.london_bags_millions),  '#3b82f6', true)]);
 
-  // Seasonality
-  const allYrs = [...new Set(rows.map(r=>r.stock_month.split('-')[0]))].sort();
-  const yrs    = seasonYears(allYrs);
-
-  function stkSs(id,legId,field,color){
-    const ds = buildSeason(rows,'stock_month',field,yrs);
-    makeChart(id,'line',MON,ds,seasonOpts());
-    setLegend(legId, yrs.filter((_,i)=>ds[i]).map((yr,i)=>({color:PAL[i%PAL.length],label:yr})));
-  }
-  stkSs('ss_nystk',  'leg_ss_nystk',  'new_york_bags_millions','#e8a020');
-  stkSs('ss_lonstk', 'leg_ss_lonstk', 'london_bags_millions',  '#3b82f6');
+  // Seasonality — use all deduplicated data
+  drawSeason('K_sny',  'KL_ny',  all, 'stock_month', 'new_york_bags_millions');
+  drawSeason('K_slon', 'KL_lon', all, 'stock_month', 'london_bags_millions');
 }
 
-// ═══════════════════════════════════════════════
-// BUILD EXPORT CHARTS
-// ═══════════════════════════════════════════════
+// ─── BUILD EXPORTS ───────────────────────────────────────────────
 function buildExports(){
-  if(!DATA.exports.length) return;
-  const rows = filterTime(DATA.exports,'export_month');
-  const lbl  = rows.map(r=>r.export_month);
+  if(!DB.exports.length) return;
 
-  const XCOLS = [
-    ['ch_xtot','total',              '#e8a020','Total Exports'],
-    ['ch_xara','arabicas',           '#3b82f6','Arabicas'],
-    ['ch_xcol','colombian_milds',    '#22c55e','Colombian Milds'],
-    ['ch_xoth','other_milds',        '#ef4444','Other Milds'],
-    ['ch_xbra','brazilian_naturals', '#a78bfa','Brazilian Naturals'],
-    ['ch_xrob','robustas',           '#06b6d4','Robustas'],
-  ];
-  XCOLS.forEach(([id,field,color,label])=>{
-    line(id, lbl, [mkFill(label, rows.map(r=>r[field]), color)]);
-  });
+  const all  = DB.exports.slice().sort((a,b)=>String(a.export_month).localeCompare(String(b.export_month)));
+  const rows = applyRange(all, 'export_month');
+  const lbl  = rows.map(r => r.export_month);
 
-  // Seasonality
-  const allData = DATA.exports; // use all for season
-  const allYrs  = [...new Set(allData.map(r=>r.export_month&&r.export_month.split('-')[0]))].filter(Boolean).sort();
-  const yrs     = seasonYears(allYrs);
+  const ECOLS = ['#e8a020','#3b82f6','#22c55e','#ef4444','#a78bfa','#06b6d4'];
+  const EFLDS = ['total','arabicas','colombian_milds','other_milds','brazilian_naturals','robustas'];
+  const ENAMS = ['Total','Arabicas','Colombian Milds','Other Milds','Brazilian Naturals','Robustas'];
+  const EIDS  = ['X_tot','X_ara','X_col','X_oth','X_bra','X_rob'];
+  const SSIDS = ['XS_tot','XS_ara','XS_col','XS_oth','XS_bra','XS_rob'];
+  const LEGIDS= ['XL_tot','XL_ara','XL_col','XL_oth','XL_bra','XL_rob'];
 
-  const XSS = [
-    ['xs_tot','leg_xs_tot','total'],
-    ['xs_ara','leg_xs_ara','arabicas'],
-    ['xs_col','leg_xs_col','colombian_milds'],
-    ['xs_oth','leg_xs_oth','other_milds'],
-    ['xs_bra','leg_xs_bra','brazilian_naturals'],
-    ['xs_rob','leg_xs_rob','robustas'],
-  ];
-  XSS.forEach(([id,legId,field])=>{
-    const ds = buildSeason(allData,'export_month',field,yrs);
-    makeChart(id,'line',MON,ds,seasonOpts());
-    setLegend(legId, yrs.filter((_,i)=>ds[i]).map((yr,i)=>({color:PAL[i%PAL.length],label:yr})));
+  EFLDS.forEach((f,i) => {
+    draw(EIDS[i], lbl, [ds(ENAMS[i], rows.map(r=>r[f]), ECOLS[i], true)]);
+    drawSeason(SSIDS[i], LEGIDS[i], all, 'export_month', f);
   });
 }
 
-// ═══════════════════════════════════════════════
-// RANGE CONTROL
-// ═══════════════════════════════════════════════
+// ─── TAB SWITCH ──────────────────────────────────────────────────
+function switchTab(name, btn){
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('on'));
+  document.getElementById('pane-'+name).classList.add('on');
+  btn.classList.add('on');
+  activeTab = name;
+
+  // Charts in hidden tabs were rendered at 0px — must rebuild after visible
+  requestAnimationFrame(() => {
+    if(name==='prices')  buildPrices();
+    if(name==='diffs')   buildDiffs();
+    if(name==='season')  buildSeason();
+    if(name==='stocks')  buildStocks();
+    if(name==='exports') buildExports();
+  });
+}
+
+// ─── RANGE SWITCH ────────────────────────────────────────────────
 function setRange(mo, btn){
   rangeMo = mo;
-  document.querySelectorAll('.rbtn').forEach(b=>b.classList.remove('on'));
-  if(btn) btn.classList.add('on');
+  document.querySelectorAll('.rb').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
 
-  // Update info label (never return early)
-  const info = document.getElementById('rangeInfo');
-  if(info){
-    if(!mo){
-      const sorted = [...DATA.prices].sort((a,b)=>a.price_month.localeCompare(b.price_month));
-      info.textContent = sorted.length ? sorted[0].price_month+' – present' : '';
+  // Update label
+  const el = document.getElementById('rangeInfo');
+  if(el){
+    const sorted = DB.prices.slice().sort((a,b)=>String(a.price_month).localeCompare(String(b.price_month)));
+    if(mo === 0){
+      el.textContent = sorted.length ? sorted[0].price_month+' – present' : '';
     } else {
-      const nYears = mo===12?1:mo===36?3:mo===60?5:0;
-      info.textContent = 'Last '+mo+' months | '+nYears+' season lines';
+      const nY = mo===12?1 : mo===36?3 : mo===60?5 : '?';
+      el.textContent = 'Last '+mo+' months · '+nY+(nY===1?' year':' years')+' in season charts';
     }
   }
-  rebuildAll();
-}
 
-function rebuildAll(){
-  if(!DATA.prices.length) return;
+  // Rebuild whichever tab is active + season (always rebuild all since range affects all)
   buildPrices();
   buildDiffs();
   buildSeason();
@@ -607,64 +511,42 @@ function rebuildAll(){
   buildExports();
 }
 
-// ═══════════════════════════════════════════════
-// TAB CONTROL
-// ═══════════════════════════════════════════════
-function showTab(name, btn){
-  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
-  document.getElementById('tab-'+name).classList.add('on');
-  btn.classList.add('on');
-  // Rebuild charts for the newly visible tab
-  // (Charts rendered while hidden have 0px size)
-  setTimeout(()=>{
-    if(name==='prices')  { buildPrices(); }
-    if(name==='diffs')   { buildDiffs(); }
-    if(name==='season')  { buildSeason(); }
-    if(name==='stocks')  { buildStocks(); }
-    if(name==='exports') { buildExports(); }
-  }, 30);
-}
-
-// ═══════════════════════════════════════════════
-// DATA LOAD
-// ═══════════════════════════════════════════════
-function loadCSV(url){
-  return new Promise((res,rej)=>{
-    Papa.parse(url,{
+// ─── LOAD DATA ───────────────────────────────────────────────────
+function fetchCSV(url){
+  return new Promise((res, rej) => {
+    Papa.parse(url, {
       download:true, header:true, dynamicTyping:true, skipEmptyLines:true,
-      complete:r=>res(r.data),
-      error:e=>rej(e)
+      complete: r => res(r.data || []),
+      error:    e => { console.error('CSV load failed:', url, e); res([]); }
     });
   });
 }
 
 async function init(){
-  document.getElementById('updEl').textContent='Loading data...';
-  try{
-    const [prices,exports_,stocks] = await Promise.all([
-      loadCSV(RAW+'prices.csv'),
-      loadCSV(RAW+'exports.csv'),
-      loadCSV(RAW+'certified_stocks.csv'),
+  document.getElementById('updEl').textContent = 'Loading…';
+  try {
+    const [prices, exports_, stocks] = await Promise.all([
+      fetchCSV(BASE+'prices.csv'),
+      fetchCSV(BASE+'exports.csv'),
+      fetchCSV(BASE+'certified_stocks.csv'),
     ]);
-    DATA.prices  = prices  || [];
-    DATA.exports = exports_|| [];
-    DATA.stocks  = stocks  || [];
+    DB.prices  = prices;
+    DB.exports = exports_;
+    DB.stocks  = stocks;
 
-    console.log('Prices:',DATA.prices.length,'Exports:',DATA.exports.length,'Stocks:',DATA.stocks.length);
+    console.log('Loaded — prices:'+prices.length+' exports:'+exports_.length+' stocks:'+stocks.length);
 
-    // Set range info
-    const sorted = [...DATA.prices].sort((a,b)=>a.price_month.localeCompare(b.price_month));
-    if(sorted.length){
-      document.getElementById('rangeInfo').textContent =
-        sorted[0].price_month+' – present';
-    }
+    // Set initial range info
+    const sorted = prices.slice().sort((a,b)=>String(a.price_month).localeCompare(String(b.price_month)));
+    const info = document.getElementById('rangeInfo');
+    if(info && sorted.length) info.textContent = sorted[0].price_month+' – present';
 
-    buildPrices(); // Only build visible tab on load
+    // Build only the visible tab (Prices) on load
+    buildPrices();
 
   } catch(e){
-    console.error('Load failed:',e);
-    document.getElementById('updEl').textContent='⚠ Load failed — check console';
+    console.error('Init failed:', e);
+    document.getElementById('updEl').textContent = '⚠ Failed – check console';
   }
 }
 
