@@ -1,6 +1,13 @@
 {
   "reports": [
     {
+      "period": "2026-03",
+      "prices_months": 12,
+      "exports_filled": 6,
+      "stocks_months": 13,
+      "processed_at": "2026-04-16T09:22:31.701762Z"
+    },
+    {
       "period": "2026-02",
       "prices_months": 12,
       "exports_filled": 6,
@@ -8,8 +15,8 @@
       "processed_at": "2026-04-06T04:49:43.950474Z"
     }
   ],
-  "last_updated": "2026-04-06T04:49:43.950499Z",
-  "total_reports": 1,
+  "last_updated": "2026-04-16T09:22:31.701774Z",
+  "total_reports": 2,
   "schema_version": "1.0",
   "data_source": "ICO Monthly Coffee Market Reports",
   "data_source_url": "https://ico.org/resources/coffee-market-report-statistics-section/"
