@@ -9,6 +9,12 @@
       "at": "2026-04-16T09:22:31.702070"
     }
   ],
-  "failed": [],
+  "failed": [
+    {
+      "period": "2026-04",
+      "error": "download_or_parse_failed",
+      "at": "2026-05-16T09:42:41.228633"
+    }
+  ],
   "skipped": []
 }
