@@ -22,6 +22,11 @@
       "period": "2026-04",
       "error": "download_or_parse_failed",
       "at": "2026-05-16T09:42:41.228633"
+    },
+    {
+      "period": "2026-07",
+      "error": "download_or_parse_failed",
+      "at": "2026-08-16T08:31:21.357068"
     }
   ],
   "skipped": []
